@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>AAB38FA3-756B-4393-A029-554701143DD6</string>
+	<key>IDESourceControlProjectName</key>
+	<string>nbtdt</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>EB7F36B2-B7BA-4FF2-90DA-F9F8A6A6FAEB</key>
+		<string>https://github.com/xtturing/nbtdt.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>nbtdt.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>EB7F36B2-B7BA-4FF2-90DA-F9F8A6A6FAEB</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/xtturing/nbtdt.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>EB7F36B2-B7BA-4FF2-90DA-F9F8A6A6FAEB</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>EB7F36B2-B7BA-4FF2-90DA-F9F8A6A6FAEB</string>
+			<key>IDESourceControlWCCName</key>
+			<string>nbtdt</string>
+		</dict>
+	</array>
+</dict>
+</plist>
