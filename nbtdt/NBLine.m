@@ -15,9 +15,11 @@
         _lineName=[dic getStringValueForKey:@"lineName" defaultValue:@""];
         _segments = [[NSMutableArray alloc] initWithCapacity:0];
         NSArray *arr = [dic objectForKey:@"segments"];
-        for (NSDictionary *item in arr) {
-            NBSegment *segment = [NBSegment segmentWithJsonDictionary:item];
-            [_segments addObject:segment];
+        if(arr){
+            for (NSDictionary *item in arr) {
+                NBSegment *segment = [NBSegment segmentWithJsonDictionary:item];
+                [_segments addObject:segment];
+            }
         }
     }
 	return self;

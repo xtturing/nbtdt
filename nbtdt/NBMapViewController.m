@@ -216,7 +216,20 @@
     switch (item.tag) {
         case 1001:
         {
-            [self.navigationController pushViewController:self.nearSearchViewController animated:YES];
+            if(self.mapView.gps.enabled){
+                self.nearSearchViewController.location = [self.mapView.gps.currentLocation locationMarsFromEarth];
+                [self.navigationController pushViewController:self.nearSearchViewController animated:YES];
+            }else{
+                UIAlertView *alert;
+                alert = [[UIAlertView alloc]
+                         initWithTitle:@"天地图宁波"
+                         message:@"周边查询需要你的位置信息,请开启GPS"
+                         delegate:nil cancelButtonTitle:nil
+                         otherButtonTitles:@"确定", nil];
+                [alert show];
+                return;
+            }
+            
         }
             break;
         case 1002:

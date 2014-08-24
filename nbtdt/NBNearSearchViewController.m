@@ -252,11 +252,11 @@
 - (void)nearSearch:(id)sender{
     
     UIButton *btn = (UIButton *)sender;
-    if(btn.tag < 15){
+    if(btn.tag < 15 && _location){
         NBSearchTableViewController *searchViewController = [[NBSearchTableViewController alloc] init];
         searchViewController.searchText = [_textArray objectAtIndex:btn.tag];
         searchViewController.searchType = AFRadiusSearch;
-        searchViewController.location = @"39.915,116.404";
+        searchViewController.location = [NSString stringWithFormat:@"%lf,%lf",_location.coordinate.latitude,_location.coordinate.longitude];
         _searchBar.text = [_textArray objectAtIndex:btn.tag];
         [self.navigationController pushViewController:searchViewController animated:YES];
     }    

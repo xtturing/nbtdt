@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
-        <deployment defaultVersion="1296" identifier="iOS"/>
+        <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="NBLineServiceViewController">
             <connections>
+                <outlet property="endField" destination="mx0-GR-CRA" id="nrL-CL-upA"/>
                 <outlet property="mapView" destination="bJ2-Vd-zL2" id="Icq-Dk-h9r"/>
                 <outlet property="segment" destination="eQI-Xo-7YS" id="bFu-Jo-z2g"/>
                 <outlet property="segmentPoint" destination="9p4-zY-9k9" id="r0P-vX-bCM"/>
+                <outlet property="startField" destination="Ak2-pl-4eq" id="7Bh-2c-Mbz"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="PXP-XU-VRm"/>
             </connections>
         </placeholder>
@@ -32,11 +34,11 @@
                             </segments>
                         </segmentedControl>
                         <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" image="qidian" id="Z6W-DX-sFa">
-                            <rect key="frame" x="20" y="33" width="22" height="35"/>
+                            <rect key="frame" x="20" y="33" width="22" height="36"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </imageView>
                         <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" image="point" id="cAc-Xe-tBr">
-                            <rect key="frame" x="20" y="70" width="22" height="35"/>
+                            <rect key="frame" x="20" y="70" width="22" height="36"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </imageView>
                         <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="我的位置" minimumFontSize="17" id="Ak2-pl-4eq">
@@ -57,6 +59,9 @@
                             <state key="normal" backgroundImage="20131125105816990_easyicon_net_64">
                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                             </state>
+                            <connections>
+                                <action selector="changeStartEnd:" destination="-1" eventType="touchUpInside" id="s8I-sH-AAN"/>
+                            </connections>
                         </button>
                         <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" apportionsSegmentWidthsByContent="YES" segmentControlStyle="bar" id="9p4-zY-9k9">
                             <rect key="frame" x="0.0" y="105" width="320" height="30"/>

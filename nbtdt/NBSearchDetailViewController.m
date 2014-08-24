@@ -197,7 +197,7 @@
         NBSearchTableViewController *searchViewController = [[NBSearchTableViewController alloc] init];
         searchViewController.searchText = [_textArray objectAtIndex:btn.tag];
         searchViewController.searchType = AFRadiusSearch;
-        searchViewController.location = @"39.915,116.404";
+        searchViewController.location = [NSString stringWithFormat:@"%lf,%lf",[[_detail.location objectForKey:@"lat"] doubleValue],[[_detail.location objectForKey:@"lng"] doubleValue]];
         [self.navigationController pushViewController:searchViewController animated:YES];
     }
 }

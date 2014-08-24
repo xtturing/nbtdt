@@ -11,5 +11,6 @@
 @interface NBNearSearchViewController : UIViewController
 
 @property (nonatomic,strong) IBOutlet UIView *imageView;
+@property (nonatomic, strong) CLLocation *location;
 
 @end

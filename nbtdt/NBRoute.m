@@ -19,17 +19,22 @@
         _center=[[[dic objectForKey:@"mapinfo"] objectForKey:@"center"] getStringValueForKey:@"text" defaultValue:@""];
         _scale=[[[dic objectForKey:@"mapinfo"] objectForKey:@"scale"] getStringValueForKey:@"text" defaultValue:@""];
         _routelatlon=[[dic objectForKey:@"routelatlon"] getStringValueForKey:@"text" defaultValue:@""];
-        _routeItemList = [[NSMutableArray alloc] initWithCapacity:0];
+        
         NSArray *arr = [[dic objectForKey:@"routes"] objectForKey:@"item"];
-        for (NSDictionary *item in arr) {
-            NBRouteItem *routeItem = [NBRouteItem routeItemWithJsonDictionary:item];
-            [_routeItemList addObject:routeItem];
+        _routeItemList = [[NSMutableArray alloc] initWithCapacity:0];
+        if(arr){
+            for (NSDictionary *item in arr) {
+                NBRouteItem *routeItem = [NBRouteItem routeItemWithJsonDictionary:item];
+                [_routeItemList addObject:routeItem];
+            }
         }
         _simpleRouteList =  [[NSMutableArray alloc] initWithCapacity:0];
         arr = [[dic objectForKey:@"simple"] objectForKey:@"item"];
-        for (NSDictionary *item in arr) {
-            NBSimpleRoute *simpleRoute = [NBSimpleRoute simpleRouteWithJsonDictionary:item];
-            [_simpleRouteList addObject:simpleRoute];
+        if(arr){
+            for (NSDictionary *item in arr) {
+                NBSimpleRoute *simpleRoute = [NBSimpleRoute simpleRouteWithJsonDictionary:item];
+                [_simpleRouteList addObject:simpleRoute];
+            }
         }
     }
 	return self;

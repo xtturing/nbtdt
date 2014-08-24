@@ -16,10 +16,12 @@
         _stationEnd = [NBStationEnd endWithJsonDictionary:[dic objectForKey:@"stationEnd"]];
         _segmentLines = [[NSMutableArray alloc] initWithCapacity:0];
         NSArray *arr = [dic objectForKey:@"segmentLine"];
-        for (NSDictionary *item in arr) {
-            NBSegmentLine *segmentLine = [NBSegmentLine segmentLineWithJsonDictionary:item];
-            [_segmentLines addObject:segmentLine];
-        }
+        if(arr){
+            for (NSDictionary *item in arr) {
+                NBSegmentLine *segmentLine = [NBSegmentLine segmentLineWithJsonDictionary:item];
+                [_segmentLines addObject:segmentLine];
+            }
+        }        
     }
 	return self;
 }

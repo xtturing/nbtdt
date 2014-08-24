@@ -156,6 +156,7 @@ static dataHttpManager * instance=nil;
     [request setDefaultResponseEncoding:NSUTF8StringEncoding];
     [request setResponseEncoding:NSUTF8StringEncoding];
     [request setDelegate:self];
+     NSLog(@"url=%@",url);
     [self setPostUserInfo:request withRequestType:AAGetLineSearch];
     [request startAsynchronous];
 
