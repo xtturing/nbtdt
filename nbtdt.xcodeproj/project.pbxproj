@@ -142,6 +142,10 @@
 		39C5F39C16F8A9920061B21A /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		39C5F39E16F8A9920061B21A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		39C5F3A016F8A9920061B21A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		41BA71E419AB749200AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/NBLineServiceViewController.xib"; sourceTree = "<group>"; };
+		41BA71E519AB749200AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/NBMapViewController.xib"; sourceTree = "<group>"; };
+		41BA71E619AB749300AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		41BA71E719AB749300AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		41BBA03B19A78B3200C0A328 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
 		41BBA03C19A78B3200C0A328 /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPClient.m; sourceTree = "<group>"; };
 		41BBA03D19A78B3200C0A328 /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPRequestOperation.h; sourceTree = "<group>"; };
@@ -852,6 +856,7 @@
 			knownRegions = (
 				en,
 				"zh-Hant",
+				"zh-Hans",
 			);
 			mainGroup = 39A1F1C816EF17D7001EAE76;
 			productRefGroup = 39A1F1D416EF17D7001EAE76 /* Products */;
@@ -997,6 +1002,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				41BBA08319A78B3200C0A328 /* en */,
+				41BA71E619AB749300AB243A /* zh-Hans */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -1005,6 +1011,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				41BBA08519A78B3200C0A328 /* en */,
+				41BA71E419AB749200AB243A /* zh-Hans */,
 			);
 			name = NBLineServiceViewController.xib;
 			sourceTree = "<group>";
@@ -1013,6 +1020,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				41BBA08719A78B3200C0A328 /* en */,
+				41BA71E519AB749200AB243A /* zh-Hans */,
 			);
 			name = NBMapViewController.xib;
 			sourceTree = "<group>";
@@ -1021,6 +1029,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				41BBA2E419A794AE00C0A328 /* en */,
+				41BA71E719AB749300AB243A /* zh-Hans */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

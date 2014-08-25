@@ -13,6 +13,7 @@
 #import "NBLine.h"
 #import "SVProgressHUD.h"
 #import "CLLocation+Sino.h"
+#import "NBLineDetailViewController.h"
 
 //contants for data layers
 #define kTiledNB @"http://60.190.2.120/wmts/nbmapall?service=WMTS&request=GetTile&version=1.0.0&layer=0&style=default&tileMatrixSet=nbmap&format=image/png&TILEMATRIX=%d&TILEROW=%d&TILECOL=%d"
@@ -28,6 +29,9 @@
     AGSGraphic * startGra;
     AGSGraphic * endGra;
 }
+@property (nonatomic, retain) CLGeocoder *geocoder;
+@property (nonatomic, retain) NBRoute *route;
+@property (nonatomic, retain) NSArray *lineList;
 @end
 
 @implementation NBLineServiceViewController
@@ -45,6 +49,10 @@
     [super viewDidLoad];
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7) {
         self.edgesForExtendedLayout = UIRectEdgeNone;
+    }
+    if (nil == self.geocoder)
+    {
+        _geocoder = [[CLGeocoder alloc] init];
     }
     _segment.selectedSegmentIndex = 1;
     lineStyle = @"2";
@@ -98,6 +106,7 @@
     
 }
 - (void)mapView:(AGSMapView *)mapView didClickAtPoint:(CGPoint)screen mapPoint:(AGSPoint *)mappoint graphics:(NSDictionary *)graphics{
+    
     if(isStart){
         if(startGra){
             [self.graphicsLayer removeGraphic:startGra];
@@ -115,11 +124,7 @@
         [self.graphicsLayer dataChanged];
         
         start = [NSString stringWithFormat:@"%lf,%lf",mappoint.x,mappoint.y];
-        if(start.length > 0){
-            _startField.placeholder = start;
-        }else{
-            _startField.placeholder = @"我的位置";
-        }
+        
     }else{
         if(endGra){
             [self.graphicsLayer removeGraphic:endGra];
@@ -137,12 +142,42 @@
         [self.graphicsLayer dataChanged];
         
         end = [NSString stringWithFormat:@"%lf,%lf",mappoint.x,mappoint.y];
-        if(end.length > 0){
-            _endField.placeholder = end;
-        }else{
-            _endField.placeholder = @"请选择目的地位置";
-        }
+        
     }
+    CLLocation *loc = [[CLLocation alloc] initWithLatitude:mappoint.y longitude:mappoint.x] ;
+    [_geocoder reverseGeocodeLocation:loc completionHandler:^(NSArray *placemarks, NSError *error) {
+        if ([placemarks count] > 0 && !error)
+        {
+            CLPlacemark *mark = [placemarks objectAtIndex:0];
+            if (mark) {
+                NSString *address = [self getAddressFromPlacemark:mark];
+                if(isStart){
+                    if(start.length > 0){
+                        _startField.placeholder = address;
+                    }else{
+                        _startField.placeholder = @"我的位置";
+                    }
+                }else{
+                    if(end.length > 0){
+                        _endField.placeholder = address;
+                    }else{
+                        _endField.placeholder = @"请选择目的地位置";
+                    }
+                }
+            }
+        }
+        else if(!error)
+        {
+            if(isStart){
+                _startField.placeholder = @"我的位置";
+            }else{
+                _endField.placeholder = @"请选择目的地位置";
+            }
+        }
+        else
+        {
+        }
+    }];
     [self doLineSearch];
 }
 
@@ -175,6 +210,17 @@
 
 
 - (void)detailAction{
+    if(isBus){
+        NBLineDetailViewController *lineDetailViewController = [[NBLineDetailViewController alloc ] initWithNibName:@"NBLineDetailViewController" bundle:nil];
+        lineDetailViewController.isBus = YES;
+        lineDetailViewController.lineList = _lineList;
+        [self.navigationController pushViewController:lineDetailViewController animated:YES];
+    }else{
+        NBLineDetailViewController *lineDetailViewController = [[NBLineDetailViewController alloc ] initWithNibName:@"NBLineDetailViewController" bundle:nil];
+        lineDetailViewController.isBus = NO;
+        lineDetailViewController.route = _route;
+        [self.navigationController pushViewController:lineDetailViewController animated:YES];
+    }
     
 }
 - (void)addTileLayer{
@@ -325,14 +371,52 @@
     self.navigationItem.rightBarButtonItem.enabled = NO;
     UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"路线服务发生异常" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
     [view show];
-    
+    self.navigationItem.rightBarButtonItem.enabled = NO;
 }
 -(void)didGetRoute:(NBRoute *)route{
     [SVProgressHUD dismiss];
+    _route = route;
+    if(_route && _route.routeItemList.count > 0){
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+    }else{
+        self.navigationItem.rightBarButtonItem.enabled = NO;
+    }
 }
 
 - (void)didGetBusLines:(NSArray *)lineList{
     [SVProgressHUD dismiss];
+    _lineList = lineList;
+    if(_lineList && _lineList.count > 0){
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+    }else{
+        self.navigationItem.rightBarButtonItem.enabled = NO;
+    }
+}
+
+- (NSString*)getAddressFromPlacemark:(CLPlacemark*)mark
+{
+    // for English Language
+    NSString *tmp = nil;
+    if (mark) {
+        // check name isEqual to @[subToroughfare thoroughfare]
+        BOOL bUseName = YES;
+        if (mark.name) {
+            if (mark.thoroughfare) {
+                if (mark.subThoroughfare) {
+                    bUseName = ![mark.name isEqualToString:[NSString stringWithFormat:@"%@ %@", mark.subThoroughfare, mark.thoroughfare]];
+                } else {
+                    bUseName = ![mark.name isEqualToString:mark.thoroughfare];
+                }
+            }
+        }
+        
+        tmp = [NSString stringWithFormat:@"%@%@%@",
+               (mark.name.length && bUseName) ? [NSString stringWithFormat:@"%@, ", mark.name]:@"",
+               mark.subThoroughfare.length ? [NSString stringWithFormat:@"%@ ", mark.subThoroughfare]:@"",
+               mark.thoroughfare.length ? [NSString stringWithFormat:@"%@, ", mark.thoroughfare]:@""];
+    }
+    
+    return tmp;
 }
 
 @end

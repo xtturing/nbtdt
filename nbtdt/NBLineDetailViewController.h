@@ -7,7 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "NBRoute.h"
 
-@interface NBLineDetailViewController : UIViewController
+
+@interface NBLineDetailViewController : UIViewController<UITableViewDataSource,UITableViewDelegate>
+
+@property (nonatomic, retain) NBRoute *route;
+
+@property (nonatomic, assign) BOOL isBus;
+
+@property (nonatomic, retain) NSArray *lineList;
 
 @end
