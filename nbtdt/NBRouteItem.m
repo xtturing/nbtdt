@@ -11,11 +11,21 @@
 @implementation NBRouteItem
 - (NBRouteItem *)initWithJsonDictionary:(NSDictionary*)dic{
     if (self = [super init]) {
-        _rid=[dic getStringValueForKey:@"id" defaultValue:@""];
-        _strguide=[[dic objectForKey:@"strguide"] getStringValueForKey:@"text" defaultValue:@""];
-        _streetName=[[dic objectForKey:@"streetName"] getStringValueForKey:@"text" defaultValue:@""];
-        _nextStreetName=[[dic objectForKey:@"nextStreetName"] getStringValueForKey:@"text" defaultValue:@""];
-        _turnlatlon=[[dic objectForKey:@"turnlatlon"] getStringValueForKey:@"text" defaultValue:@""];
+        if([dic count] >1){
+            if([dic objectForKey:@"strguide"] ){
+                _strguide=[[dic objectForKey:@"strguide"] getStringValueForKey:@"text" defaultValue:@""];
+            }
+            if([dic objectForKey:@"streetName"]){
+                _streetName=[[dic objectForKey:@"streetName"] getStringValueForKey:@"text" defaultValue:@""];
+            }
+            if([dic objectForKey:@"nextStreetName"]){
+              _nextStreetName=[[dic objectForKey:@"nextStreetName"] getStringValueForKey:@"text" defaultValue:@""];
+            }
+            if([dic objectForKey:@"turnlatlon"]){
+              _turnlatlon=[[dic objectForKey:@"turnlatlon"] getStringValueForKey:@"text" defaultValue:@""];
+            }
+        }        
+        
     }
 	return self;
 }

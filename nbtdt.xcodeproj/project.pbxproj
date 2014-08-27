@@ -213,8 +213,6 @@
 		41BBA07F19A78B3200C0A328 /* DownloadStoreManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadStoreManager.m; sourceTree = "<group>"; };
 		41BBA08119A78B3200C0A328 /* DwonloadModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DwonloadModel.xcdatamodel; sourceTree = "<group>"; };
 		41BBA08319A78B3200C0A328 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		41BBA08519A78B3200C0A328 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/NBLineServiceViewController.xib; sourceTree = "<group>"; };
-		41BBA08719A78B3200C0A328 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/NBMapViewController.xib; sourceTree = "<group>"; };
 		41BBA08819A78B3200C0A328 /* GoogleMapSchema.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleMapSchema.h; sourceTree = "<group>"; };
 		41BBA08919A78B3200C0A328 /* GoogleMapSchema.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleMapSchema.m; sourceTree = "<group>"; };
 		41BBA08A19A78B3200C0A328 /* GoogleMapTileOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleMapTileOperation.h; sourceTree = "<group>"; };
@@ -1010,7 +1008,6 @@
 		41BBA08419A78B3200C0A328 /* NBLineServiceViewController.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				41BBA08519A78B3200C0A328 /* en */,
 				41BA71E419AB749200AB243A /* zh-Hans */,
 			);
 			name = NBLineServiceViewController.xib;
@@ -1019,7 +1016,6 @@
 		41BBA08619A78B3200C0A328 /* NBMapViewController.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				41BBA08719A78B3200C0A328 /* en */,
 				41BA71E519AB749200AB243A /* zh-Hans */,
 			);
 			name = NBMapViewController.xib;
@@ -1111,6 +1107,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Zhou Hao (42L27M95EJ)";
@@ -1153,6 +1151,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-2";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Zhou Hao (42L27M95EJ)";

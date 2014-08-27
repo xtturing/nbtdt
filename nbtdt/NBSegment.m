@@ -18,8 +18,11 @@
         NSArray *arr = [dic objectForKey:@"segmentLine"];
         if(arr){
             for (NSDictionary *item in arr) {
-                NBSegmentLine *segmentLine = [NBSegmentLine segmentLineWithJsonDictionary:item];
-                [_segmentLines addObject:segmentLine];
+                if(item){
+                    
+                    NBSegmentLine *segmentLine = [NBSegmentLine segmentLineWithJsonDictionary:item];
+                    [_segmentLines addObject:segmentLine];
+                }
             }
         }        
     }

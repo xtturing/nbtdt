@@ -29,9 +29,10 @@
     AGSGraphic * startGra;
     AGSGraphic * endGra;
 }
-@property (nonatomic, retain) CLGeocoder *geocoder;
-@property (nonatomic, retain) NBRoute *route;
-@property (nonatomic, retain) NSArray *lineList;
+@property (nonatomic, strong) CLGeocoder *geocoder;
+@property (nonatomic, strong) NBRoute *route;
+@property (nonatomic, strong) NSArray *lineList;
+@property (nonatomic, strong) UIScrollView *scrollView ;
 @end
 
 @implementation NBLineServiceViewController
@@ -59,6 +60,7 @@
     [_segment addTarget:self action:@selector(segmentStyleAction:) forControlEvents:UIControlEventValueChanged];
     [_segmentPoint addTarget:self action:@selector(segmentPointAction:) forControlEvents:UIControlEventValueChanged];
     _segmentPoint.enabled = NO;
+    isStart =YES;
     UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"公交",@"自驾", nil]];
     seg.frame = CGRectMake(0, 7, 140, 30);
     seg.segmentedControlStyle = UISegmentedControlStyleBar;
@@ -107,45 +109,61 @@
 }
 - (void)mapView:(AGSMapView *)mapView didClickAtPoint:(CGPoint)screen mapPoint:(AGSPoint *)mappoint graphics:(NSDictionary *)graphics{
     
-    if(isStart){
-        if(startGra){
-            [self.graphicsLayer removeGraphic:startGra];
-            startGra = nil;
-        }
-        AGSPictureMarkerSymbol * dian = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImageNamed:@"qidian"];
-        dian.size = CGSizeMake(22,36);
-        if(mappoint.x == 0 || mappoint.y == 0 ){
-            return;
-        }
-        startGra = [AGSGraphic graphicWithGeometry:mappoint symbol:nil attributes:nil infoTemplateDelegate:nil];
-        dian.yoffset=16;
-        startGra.symbol = dian;
-        [self.graphicsLayer addGraphic:startGra];
-        [self.graphicsLayer dataChanged];
-        
-        start = [NSString stringWithFormat:@"%lf,%lf",mappoint.x,mappoint.y];
-        
-    }else{
-        if(endGra){
-            [self.graphicsLayer removeGraphic:endGra];
-            endGra = nil;
-        }
-        AGSPictureMarkerSymbol * dian = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImageNamed:@"point"];
-        dian.size = CGSizeMake(22,36);
-        if(mappoint.x == 0 || mappoint.y == 0 ){
-            return;
-        }
-        endGra = [AGSGraphic graphicWithGeometry:mappoint symbol:nil attributes:nil infoTemplateDelegate:nil];
-        dian.yoffset=16;
-        endGra.symbol = dian;
-        [self.graphicsLayer addGraphic:endGra];
-        [self.graphicsLayer dataChanged];
+    if(!isStart){
+        [self addEndPoint:mappoint];
         
         end = [NSString stringWithFormat:@"%lf,%lf",mappoint.x,mappoint.y];
         
+        
+    }else{
+        isStart = YES;
+        _segmentPoint.selectedSegmentIndex = 1;
+        [self addStartPoint:mappoint];
+        start = [NSString stringWithFormat:@"%lf,%lf",mappoint.x,mappoint.y];
+        
     }
+    
     CLLocation *loc = [[CLLocation alloc] initWithLatitude:mappoint.y longitude:mappoint.x] ;
-    [_geocoder reverseGeocodeLocation:loc completionHandler:^(NSArray *placemarks, NSError *error) {
+    [self doGeo:loc];
+    
+    [self doLineSearch];
+}
+-(void)addStartPoint:(AGSPoint *)mappoint{
+    if(startGra){
+        [self.graphicsLayer removeGraphic:startGra];
+        startGra = nil;
+    }
+    AGSPictureMarkerSymbol * dian = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImageNamed:@"qidian"];
+    dian.size = CGSizeMake(22,36);
+    if(mappoint.x == 0 || mappoint.y == 0 ){
+        return;
+    }
+    startGra = [AGSGraphic graphicWithGeometry:mappoint symbol:nil attributes:nil infoTemplateDelegate:nil];
+    dian.yoffset=18;
+    startGra.symbol = dian;
+    [self.graphicsLayer addGraphic:startGra];
+    [self.graphicsLayer dataChanged];
+}
+
+-(void)addEndPoint:(AGSPoint *)mappoint{
+    if(endGra){
+        [self.graphicsLayer removeGraphic:endGra];
+        endGra = nil;
+    }
+    AGSPictureMarkerSymbol * dian = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImageNamed:@"point"];
+    dian.size = CGSizeMake(22,36);
+    if(mappoint.x == 0 || mappoint.y == 0 ){
+        return;
+    }
+    endGra = [AGSGraphic graphicWithGeometry:mappoint symbol:nil attributes:nil infoTemplateDelegate:nil];
+    dian.yoffset=18;
+    endGra.symbol = dian;
+    [self.graphicsLayer addGraphic:endGra];
+    [self.graphicsLayer dataChanged];
+}
+
+- (void)doGeo:(CLLocation *)location{
+    [_geocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
         if ([placemarks count] > 0 && !error)
         {
             CLPlacemark *mark = [placemarks objectAtIndex:0];
@@ -178,7 +196,6 @@
         {
         }
     }];
-    [self doLineSearch];
 }
 
 - (IBAction)changeStartEnd:(id)sender{
@@ -311,16 +328,13 @@
                     dian.size = CGSizeMake(22,36);
                     AGSPoint *mappoint = [[AGSPoint alloc] initWithX:loc.coordinate.longitude y:loc.coordinate.latitude spatialReference:self.mapView.spatialReference];
                     startGra = [AGSGraphic graphicWithGeometry:mappoint symbol:nil attributes:nil infoTemplateDelegate:nil];
-                    dian.yoffset=16;
+                    dian.yoffset=18;
                     startGra.symbol = dian;
                     [self.graphicsLayer addGraphic:startGra];
                     [self.graphicsLayer dataChanged];
                     start = [NSString stringWithFormat:@"%lf,%lf",loc.coordinate.longitude,loc.coordinate.latitude];
-                    if(start.length > 0){
-                        _startField.placeholder = start;
-                    }else{
-                        _startField.placeholder = @"我的位置";
-                    }
+                    
+                    [self doGeo:loc];
                     [self doLineSearch];
                 }
             }else{
@@ -381,6 +395,68 @@
     }else{
         self.navigationItem.rightBarButtonItem.enabled = NO;
     }
+    
+    AGSPictureMarkerSymbol * jingguo = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImageNamed:@"jingguo.png"];
+    AGSSimpleLineSymbol* lineSymbol = [AGSSimpleLineSymbol simpleLineSymbol];
+    lineSymbol.color =[UIColor colorWithRed:45.0/255.0 green:140.0/255.0  blue:58.0/255.0 alpha:1.0];
+    lineSymbol.width = 6;
+ 
+    NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:0];
+    NSMutableArray *lines = [[NSMutableArray alloc] initWithCapacity:0];
+    [self.graphicsLayer removeAllGraphics];
+    [self.mapView.callout removeFromSuperview];
+    [self.graphicsLayer dataChanged];
+    [_scrollView removeFromSuperview];
+    _scrollView = nil;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        for(NBSimpleRoute *item in _route.simpleRouteList){
+            if(item.turnlatlon.length > 0 && item.streetLatLon.length > 0){
+                AGSGraphic * pointgra= nil;
+                AGSGraphic * linegra=nil;
+                AGSMutablePolyline* poly = [[AGSMutablePolyline alloc] initWithSpatialReference:self.mapView.spatialReference];
+                [poly addPathToPolyline];
+                
+                NSArray *array = [item.turnlatlon componentsSeparatedByString:@","];
+                if(array.count == 2){
+                    AGSPoint *point = [AGSPoint pointWithX:[[array objectAtIndex:0] doubleValue] y:[[array objectAtIndex:1] doubleValue] spatialReference:self.mapView.spatialReference];
+                    pointgra = [AGSGraphic graphicWithGeometry:point symbol:nil attributes:nil infoTemplateDelegate:nil];
+                    pointgra.symbol = jingguo;
+                    [points addObject:pointgra];
+                }
+                
+                NSArray *latlon=[item.streetLatLon componentsSeparatedByString:@";"];
+                for (int i=0; i<latlon.count; i++) {
+                    NSString *str=[latlon objectAtIndex:i];
+                    NSArray *coor=[str componentsSeparatedByString:@","];
+                    if(coor.count==2){
+                        AGSPoint *point =	[AGSPoint pointWithX:[[coor objectAtIndex:0] doubleValue]  y: [[coor objectAtIndex:1] doubleValue] spatialReference:nil];
+                        [poly addPointToPath:point];
+                    }
+                }
+                linegra = [AGSGraphic graphicWithGeometry:poly symbol:lineSymbol attributes:nil infoTemplateDelegate:nil];
+                [lines addObject:linegra];
+                
+            }
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.graphicsLayer addGraphics:lines];
+            [self.graphicsLayer addGraphics:points];
+            NSArray *array = [_route.orig componentsSeparatedByString:@","];
+            if(array.count == 2){
+                [self addStartPoint:[AGSPoint pointWithX:[[array objectAtIndex:0] doubleValue] y:[[array objectAtIndex:1] doubleValue] spatialReference:nil]];
+            }
+            array = [_route.dest componentsSeparatedByString:@","];
+            if(array.count == 2){
+                [self addEndPoint:[AGSPoint pointWithX:[[array objectAtIndex:0] doubleValue] y:[[array objectAtIndex:1] doubleValue] spatialReference:nil]];
+            }
+            [self.graphicsLayer dataChanged];
+            if(_route.scale.length>0 && _route.center.length > 0){
+                array = [_route.center componentsSeparatedByString:@","];
+                [self zooMapToLevel:[_route.scale intValue]+2 withCenter:[AGSPoint pointWithX:[[array objectAtIndex:0] doubleValue] y:[[array objectAtIndex:1] doubleValue] spatialReference:nil]];
+            }
+        });
+    });
 }
 
 - (void)didGetBusLines:(NSArray *)lineList{
@@ -390,6 +466,27 @@
         self.navigationItem.rightBarButtonItem.enabled = YES;
     }else{
         self.navigationItem.rightBarButtonItem.enabled = NO;
+    }
+    [self.graphicsLayer removeAllGraphics];
+    [self.mapView.callout removeFromSuperview];
+    [self.graphicsLayer dataChanged];
+    
+    if(!_scrollView){
+        _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height- 44, self.view.frame.size.width, 44)];
+        _scrollView.backgroundColor = [UIColor whiteColor];
+        _scrollView.userInteractionEnabled = YES;
+    }
+    [self.view addSubview:_scrollView];
+    _scrollView.contentSize = CGSizeMake(_lineList.count * 120 , 44);
+    for(int i = 0; i<_lineList.count; i++){
+        NBLine *line = [_lineList objectAtIndex:i];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        btn.backgroundColor = [UIColor clearColor];
+        btn.frame = CGRectMake((20+i*100), 8, 80, 28);
+        btn.titleLabel.font = [UIFont systemFontOfSize:14];
+        [btn setTitle:line.lineName forState:UIControlStateNormal];
+        [btn setUserInteractionEnabled:YES];
+        [_scrollView addSubview:btn];
     }
 }
 
@@ -418,5 +515,7 @@
     
     return tmp;
 }
+
+
 
 @end

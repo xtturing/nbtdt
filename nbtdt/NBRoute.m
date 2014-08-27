@@ -19,23 +19,34 @@
         _center=[[[dic objectForKey:@"mapinfo"] objectForKey:@"center"] getStringValueForKey:@"text" defaultValue:@""];
         _scale=[[[dic objectForKey:@"mapinfo"] objectForKey:@"scale"] getStringValueForKey:@"text" defaultValue:@""];
         _routelatlon=[[dic objectForKey:@"routelatlon"] getStringValueForKey:@"text" defaultValue:@""];
+        NSArray *arr = nil;
+        if([dic objectForKey:@"routes"] ){
+            arr = [[dic objectForKey:@"routes"] objectForKey:@"item"];
+            _routeItemList = [[NSMutableArray alloc] initWithCapacity:0];
+            if(arr){
+                for (id item in arr) {
+                    if(item && [item isKindOfClass:[NSDictionary class]]){
+                        NBRouteItem *routeItem = [NBRouteItem routeItemWithJsonDictionary:item];
+                        [_routeItemList addObject:routeItem];
+                    }
+                }
+            }
+        }
         
-        NSArray *arr = [[dic objectForKey:@"routes"] objectForKey:@"item"];
-        _routeItemList = [[NSMutableArray alloc] initWithCapacity:0];
-        if(arr){
-            for (NSDictionary *item in arr) {
-                NBRouteItem *routeItem = [NBRouteItem routeItemWithJsonDictionary:item];
-                [_routeItemList addObject:routeItem];
-            }
-        }
         _simpleRouteList =  [[NSMutableArray alloc] initWithCapacity:0];
-        arr = [[dic objectForKey:@"simple"] objectForKey:@"item"];
-        if(arr){
-            for (NSDictionary *item in arr) {
-                NBSimpleRoute *simpleRoute = [NBSimpleRoute simpleRouteWithJsonDictionary:item];
-                [_simpleRouteList addObject:simpleRoute];
+        if([dic objectForKey:@"simple"]){
+            arr = [[dic objectForKey:@"simple"] objectForKey:@"item"];
+            if(arr){
+                for (id item in arr) {
+                    if(item && [item isKindOfClass:[NSDictionary class]]){
+                        NBSimpleRoute *simpleRoute = [NBSimpleRoute simpleRouteWithJsonDictionary:item];
+                        [_simpleRouteList addObject:simpleRoute];
+                    }
+                    
+                }
             }
         }
+       
     }
 	return self;
 }

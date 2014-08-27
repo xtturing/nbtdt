@@ -244,8 +244,10 @@ static dataHttpManager * instance=nil;
         NSArray *arr= [userInfo objectForKey:@"results"];
         NSMutableArray  *statuesArr = [[NSMutableArray alloc]initWithCapacity:0];
         for(NSDictionary *item in arr){
-            NBSearch *result = [NBSearch searchWithJsonDictionary:item];
-            [statuesArr addObject:result];
+            if(item){
+                NBSearch *result = [NBSearch searchWithJsonDictionary:item];
+                [statuesArr addObject:result];
+            }
         }
         if ([_delegate respondsToSelector:@selector(didGetSearchList:)]) {
             [_delegate didGetSearchList:statuesArr];
@@ -256,8 +258,11 @@ static dataHttpManager * instance=nil;
         NSArray *arr= [userInfo objectForKey:@"results"];
         NSMutableArray  *statuesArr = [[NSMutableArray alloc]initWithCapacity:0];
         for(NSDictionary *item in arr){
-            NBSearch *result = [NBSearch searchWithJsonDictionary:item];
-            [statuesArr addObject:result];
+            if(item){
+                
+                NBSearch *result = [NBSearch searchWithJsonDictionary:item];
+                [statuesArr addObject:result];
+            }
         }
         if ([_delegate respondsToSelector:@selector(didGetRadiusSearchList:)]) {
             [_delegate didGetRadiusSearchList:statuesArr];
@@ -290,8 +295,11 @@ static dataHttpManager * instance=nil;
         NSArray *arr= [[[userInfo objectForKey:@"results"] objectAtIndex:0] objectForKey:@"lines"];
         NSMutableArray  *statuesArr = [[NSMutableArray alloc]initWithCapacity:0];
         for(NSDictionary *item in arr){
-            NBLine *line = [NBLine lineWithJsonDictionary:item];
-            [statuesArr addObject:line];
+            if(item){
+                
+                NBLine *line = [NBLine lineWithJsonDictionary:item];
+                [statuesArr addObject:line];
+            }
         }
         if ([_delegate respondsToSelector:@selector(didGetBusLines:)]) {
             [_delegate didGetBusLines:statuesArr];
