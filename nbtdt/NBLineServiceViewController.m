@@ -230,11 +230,21 @@
     if(isBus){
         NBLineDetailViewController *lineDetailViewController = [[NBLineDetailViewController alloc ] initWithNibName:@"NBLineDetailViewController" bundle:nil];
         lineDetailViewController.isBus = YES;
+        lineDetailViewController.start = start;
+        lineDetailViewController.startAddress = _startField.placeholder;
+        lineDetailViewController.end = end;
+        lineDetailViewController.endAddress = _endField.placeholder;
+        lineDetailViewController.lineStyle = lineStyle;
         lineDetailViewController.lineList = _lineList;
         [self.navigationController pushViewController:lineDetailViewController animated:YES];
     }else{
         NBLineDetailViewController *lineDetailViewController = [[NBLineDetailViewController alloc ] initWithNibName:@"NBLineDetailViewController" bundle:nil];
         lineDetailViewController.isBus = NO;
+        lineDetailViewController.start = start;
+        lineDetailViewController.startAddress = _startField.placeholder;
+        lineDetailViewController.end = end;
+        lineDetailViewController.endAddress = _endField.placeholder;
+        lineDetailViewController.lineStyle = lineStyle;
         lineDetailViewController.route = _route;
         [self.navigationController pushViewController:lineDetailViewController animated:YES];
     }
@@ -404,7 +414,6 @@
     NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:0];
     NSMutableArray *lines = [[NSMutableArray alloc] initWithCapacity:0];
     [self.graphicsLayer removeAllGraphics];
-    [self.mapView.callout removeFromSuperview];
     [self.graphicsLayer dataChanged];
     [_scrollView removeFromSuperview];
     _scrollView = nil;
@@ -467,16 +476,14 @@
     }else{
         self.navigationItem.rightBarButtonItem.enabled = NO;
     }
-    [self.graphicsLayer removeAllGraphics];
-    [self.mapView.callout removeFromSuperview];
-    [self.graphicsLayer dataChanged];
-    
+    [_scrollView removeFromSuperview];
+    _scrollView = nil;
     if(!_scrollView){
         _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height- 44, self.view.frame.size.width, 44)];
         _scrollView.backgroundColor = [UIColor whiteColor];
         _scrollView.userInteractionEnabled = YES;
+        [self.view addSubview:_scrollView];
     }
-    [self.view addSubview:_scrollView];
     _scrollView.contentSize = CGSizeMake(_lineList.count * 120 , 44);
     for(int i = 0; i<_lineList.count; i++){
         NBLine *line = [_lineList objectAtIndex:i];
@@ -484,10 +491,82 @@
         btn.backgroundColor = [UIColor clearColor];
         btn.frame = CGRectMake((20+i*100), 8, 80, 28);
         btn.titleLabel.font = [UIFont systemFontOfSize:14];
+        [btn addTarget:self action:@selector(selectBusLineButton:) forControlEvents:UIControlEventTouchUpInside];
+        btn.tag = i;
         [btn setTitle:line.lineName forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor orangeColor] forState:UIControlStateSelected];
         [btn setUserInteractionEnabled:YES];
         [_scrollView addSubview:btn];
     }
+    
+    
+    [self addBusLineToMap:0];
+}
+
+- (void)selectBusLineButton:(UIButton *)sender{
+    [self addBusLineToMap:sender.tag];
+}
+
+-(void)addBusLineToMap:(int)index{
+    
+    NBLine *line = [_lineList objectAtIndex:index];
+    AGSPictureMarkerSymbol * jingguo = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImageNamed:@"jingguo.png"];
+    AGSSimpleLineSymbol* lineSymbol = [AGSSimpleLineSymbol simpleLineSymbol];
+    lineSymbol.color =[UIColor colorWithRed:45.0/255.0 green:140.0/255.0  blue:58.0/255.0 alpha:1.0];
+    lineSymbol.width = 6;
+    
+    NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:0];
+    NSMutableArray *lines = [[NSMutableArray alloc] initWithCapacity:0];
+    [self.graphicsLayer removeAllGraphics];
+    [self.graphicsLayer dataChanged];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        for(NBSegment *item in line.segments){
+            if(item.stationStart.lonlat.length > 0 && item.stationEnd.lonlat.length > 0){
+                AGSGraphic * pointgra= nil;
+                AGSGraphic * linegra=nil;
+                AGSMutablePolyline* poly = [[AGSMutablePolyline alloc] initWithSpatialReference:self.mapView.spatialReference];
+                [poly addPathToPolyline];
+                
+                NSArray *array = [item.stationStart.lonlat componentsSeparatedByString:@","];
+                if(array.count == 2){
+                    AGSPoint *point = [AGSPoint pointWithX:[[array objectAtIndex:0] doubleValue] y:[[array objectAtIndex:1] doubleValue] spatialReference:self.mapView.spatialReference];
+                    pointgra = [AGSGraphic graphicWithGeometry:point symbol:nil attributes:nil infoTemplateDelegate:nil];
+                    pointgra.symbol = jingguo;
+                    [points addObject:pointgra];
+                }
+                NBSegmentLine *line = [item.segmentLines objectAtIndex:0];
+                NSArray *latlon=[line.linePoint componentsSeparatedByString:@";"];
+                for (int i=0; i<latlon.count; i++) {
+                    NSString *str=[latlon objectAtIndex:i];
+                    NSArray *coor=[str componentsSeparatedByString:@","];
+                    if(coor.count==2){
+                        AGSPoint *point =	[AGSPoint pointWithX:[[coor objectAtIndex:0] doubleValue]  y: [[coor objectAtIndex:1] doubleValue] spatialReference:nil];
+                        [poly addPointToPath:point];
+                    }
+                }
+                linegra = [AGSGraphic graphicWithGeometry:poly symbol:lineSymbol attributes:nil infoTemplateDelegate:nil];
+                [lines addObject:linegra];
+                
+            }
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.graphicsLayer addGraphics:lines];
+            [self.graphicsLayer addGraphics:points];
+            NBSegment *seg = [line.segments objectAtIndex:0];
+            NSArray *array = [seg.stationStart.lonlat componentsSeparatedByString:@","];
+            if(array.count == 2){
+                [self addStartPoint:[AGSPoint pointWithX:[[array objectAtIndex:0] doubleValue] y:[[array objectAtIndex:1] doubleValue] spatialReference:nil]];
+            }
+            seg = [line.segments objectAtIndex:(line.segments.count-1)];
+            array = [seg.stationEnd.lonlat componentsSeparatedByString:@","];
+            if(array.count == 2){
+                [self addEndPoint:[AGSPoint pointWithX:[[array objectAtIndex:0] doubleValue] y:[[array objectAtIndex:1] doubleValue] spatialReference:nil]];
+            }
+            [self.graphicsLayer dataChanged];
+        });
+    });
 }
 
 - (NSString*)getAddressFromPlacemark:(CLPlacemark*)mark

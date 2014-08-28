@@ -52,6 +52,7 @@
     [super viewWillAppear:animated];
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     _favoritePoints = [NSArray arrayWithArray:[defaults objectForKey:@"FAVORITES_POINT"]];
+    _favoriteLines = [NSArray arrayWithArray:[defaults objectForKey:@"FAVORITES_LINE"]];
     [_tableView reloadData];
 }
 
@@ -99,25 +100,74 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    static NSString *reuseIdetify = @"TableViewCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdetify];
+    static NSString *reuseIdetifyPoint = @"TableViewCellPoint";
+    static NSString *reuseIdetifyLine = @"TableViewCellLine";
+    UITableViewCell *cell = nil;
+    if(segment.selectedSegmentIndex == 0){
+        cell = [tableView dequeueReusableCellWithIdentifier:reuseIdetifyPoint];
+    }else{
+        cell = [tableView dequeueReusableCellWithIdentifier:reuseIdetifyLine];
+    }
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:reuseIdetify];
+        if(segment.selectedSegmentIndex == 0){
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:reuseIdetifyPoint];
+        }else{
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseIdetifyLine];
+        }
+        
         cell.backgroundColor = [UIColor whiteColor];
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     cell.textLabel.backgroundColor = [UIColor clearColor];
     cell.textLabel.font = [UIFont systemFontOfSize:14];
+    cell.textLabel.numberOfLines = 0;
     cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
     cell.detailTextLabel.numberOfLines = 0;
+    cell.textLabel.adjustsFontSizeToFitWidth = YES;
+    cell.textLabel.minimumScaleFactor = 0.5;
+    cell.detailTextLabel.adjustsFontSizeToFitWidth = YES;
+    cell.detailTextLabel.minimumScaleFactor = 0.5;
+
     if(segment.selectedSegmentIndex == 0){
         NBSearch *detail = [NSKeyedUnarchiver unarchiveObjectWithData:[_favoritePoints objectAtIndex:indexPath.row] ];
         cell.textLabel.text = detail.name;
         cell.detailTextLabel.text = [NSString stringWithFormat:@"地址：%@",detail.address];
     }else{
-        cell.textLabel.text = nil;
-        cell.detailTextLabel.text = nil;
+        NSArray *data = [_favoriteLines objectAtIndex:indexPath.row];
+        NSString *string = nil;
+        if([[data objectAtIndex:5] intValue] == 1){
+            switch ([[data objectAtIndex:4] intValue]) {
+                case 0:
+                    string = @"公交路线 \n 较快捷";
+                    break;
+                case 1:
+                    string = @"公交路线 \n 少换乘";
+                    break;
+                case 2:
+                    string = @"公交路线 \n 少步行";
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            switch ([[data objectAtIndex:4] intValue]) {
+                case 0:
+                    string = @"驾车路线 \n 最快线路";
+                    break;
+                case 1:
+                    string = @"驾车路线 \n 最短线路";
+                    break;
+                case 2:
+                    string = @"驾车路线 \n 少走高速";
+                    break;
+                default:
+                    break;
+            }
+            
+        }
+        cell.textLabel.text = string;
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"起点:%@\n\n终点：%@",[data objectAtIndex:1],[data objectAtIndex:3]];
     }
     return cell;
 }

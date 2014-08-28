@@ -12,10 +12,21 @@
 
 @interface NBLineDetailViewController : UIViewController<UITableViewDataSource,UITableViewDelegate>
 
-@property (nonatomic, retain) NBRoute *route;
+@property (nonatomic, strong) NBRoute *route;
 
 @property (nonatomic, assign) BOOL isBus;
 
-@property (nonatomic, retain) NSArray *lineList;
+@property (nonatomic, strong) NSArray *lineList;
+
+@property (nonatomic, strong) NSString *start;
+
+@property (nonatomic, strong) NSString *startAddress;
+
+@property (nonatomic, strong) NSString *end;
+
+@property (nonatomic, strong) NSString *endAddress;
+
+@property (nonatomic, strong) NSString *lineStyle;
+
 
 @end

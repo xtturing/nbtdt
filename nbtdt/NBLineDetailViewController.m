@@ -37,9 +37,15 @@
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7) {
         self.edgesForExtendedLayout = UIRectEdgeNone;
     }
-    UIBarButtonItem *right = [[UIBarButtonItem alloc]  initWithTitle:@"收藏" style:UIBarButtonItemStylePlain target:self action:@selector(favPoint:)];
+    UIBarButtonItem *right = [[UIBarButtonItem alloc]  initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(favLine:)];
     self.navigationItem.rightBarButtonItem = right;
-    self.navigationItem.rightBarButtonItem.enabled = NO;
+    if([self hasFavoriteLine]){
+        [right setTitle:@"已收藏"];
+        self.navigationItem.rightBarButtonItem.enabled = NO;
+    }else{
+        [right setTitle:@"收藏"];
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+    }
     // Do any additional setup after loading the view from its nib.
 }
 
@@ -48,7 +54,23 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-- (void)favPoint:(id)sender{
+
+- (void)favLine:(id)sender{
+    UIBarButtonItem *btn = (UIBarButtonItem *)sender;
+    [btn setTitle:@"已收藏"];
+    btn.enabled = NO;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        NSArray *array = [defaults objectForKey:@"FAVORITES_LINE"];
+        if(array == nil){
+            array = [[NSMutableArray alloc] init];
+        }
+        NSMutableArray *mArray = [NSMutableArray arrayWithArray:array];
+        NSArray *object = [NSArray arrayWithObjects:_start,_startAddress,_end,_endAddress,_lineStyle,[NSNumber numberWithBool:_isBus], nil];
+        [mArray addObject:object];
+        [defaults setObject:(NSArray *)mArray forKey:@"FAVORITES_LINE" ];
+        [defaults synchronize];
+    });
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -173,5 +195,19 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
+}
+
+- (BOOL)hasFavoriteLine{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSArray *array = [defaults objectForKey:@"FAVORITES_LINE"];
+    if(array == nil){
+        return NO;
+    }
+    for(NSArray *data in array){
+        if([[data objectAtIndex:0] isEqualToString:_start] && [[data objectAtIndex:2]  isEqualToString:_end] && [[data objectAtIndex:4] isEqualToString:_lineStyle] && [[data objectAtIndex:5] intValue] == [[NSNumber numberWithBool:_isBus] intValue]){
+            return YES;
+        }
+    }
+    return NO;
 }
 @end
