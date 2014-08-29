@@ -13,8 +13,11 @@
 #import "NBRouteItem.h"
 #import "NBStationStart.h"
 #import "NBStationEnd.h"
+#import "SVProgressHUD.h"
+#import "dataHttpManager.h"
+#import "NBLineServiceViewController.h"
 
-@interface NBLineDetailViewController (){
+@interface NBLineDetailViewController ()<dataHttpDelegate>{
 
 }
 
@@ -31,6 +34,16 @@
     return self;
 }
 
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [dataHttpManager getInstance].delegate = self;
+    [self doLineSearch];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [dataHttpManager getInstance].delegate =  nil;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -41,10 +54,10 @@
     self.navigationItem.rightBarButtonItem = right;
     if([self hasFavoriteLine]){
         [right setTitle:@"已收藏"];
-        self.navigationItem.rightBarButtonItem.enabled = NO;
+        right.enabled = NO;
     }else{
         [right setTitle:@"收藏"];
-        self.navigationItem.rightBarButtonItem.enabled = YES;
+        right.enabled = YES;
     }
     // Do any additional setup after loading the view from its nib.
 }
@@ -56,6 +69,9 @@
 }
 
 - (void)favLine:(id)sender{
+    if([self hasFavoriteLine]){
+        return;
+    }
     UIBarButtonItem *btn = (UIBarButtonItem *)sender;
     [btn setTitle:@"已收藏"];
     btn.enabled = NO;
@@ -195,6 +211,23 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
+    UIViewController *viewController = [self.navigationController.viewControllers objectAtIndex:[self.navigationController.viewControllers count]-2];
+    if([viewController isKindOfClass:[NBLineServiceViewController class] ]){
+        if(_isBus){
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"BusLineDetail" object:nil userInfo:[NSDictionary dictionaryWithObject:indexPath forKey:@"indexPath"]];
+        }else{
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"RouteLineDetail" object:nil userInfo:[NSDictionary dictionaryWithObject:indexPath forKey:@"indexPath"]];
+        }
+        [self.navigationController popViewControllerAnimated:YES];
+    }else{
+        NBLineServiceViewController *lineSeviceViewController = [[NBLineServiceViewController alloc] initWithNibName:@"NBLineServiceViewController" bundle:nil];
+        if(_isBus){
+            [lineSeviceViewController doLineSearchWithFav:YES lineList:_lineList];
+        }else{
+            [lineSeviceViewController doLineSearchWithFav:YES route:_route];
+        }
+        [self.navigationController pushViewController:lineSeviceViewController animated:YES];
+    }
 }
 
 - (BOOL)hasFavoriteLine{
@@ -209,5 +242,38 @@
         }
     }
     return NO;
+}
+
+- (void)doLineSearch{
+    if(_start.length > 0 && _end.length > 0 && _lineStyle.length > 0  && !_lineList && !_route){
+        [SVProgressHUD showWithMaskType:SVProgressHUDMaskTypeGradient];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            if(_isBus){
+                [[dataHttpManager getInstance] letDoBusSearchWithStartposition:_start endposition:_end linetype:_lineStyle];
+            }else{
+                [[dataHttpManager getInstance] letDoLineSearchWithOrig:_start dest:_end style:_lineStyle];
+            }
+            
+        });
+    }
+}
+
+-(void)didGetRoute:(NBRoute *)route{
+    [SVProgressHUD dismiss];
+    _route = route;
+    [self.table reloadData];
+}
+
+- (void)didGetFailed{
+    [SVProgressHUD dismiss];
+    self.navigationItem.rightBarButtonItem.enabled = NO;
+    UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"路线服务发生异常" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+    [view show];
+}
+
+- (void)didGetBusLines:(NSArray *)lineList{
+    [SVProgressHUD dismiss];
+    _lineList = lineList;
+    [self.table reloadData];
 }
 @end

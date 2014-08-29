@@ -28,5 +28,9 @@
 
 @property (nonatomic, strong) NSString *lineStyle;
 
+@property (nonatomic, strong) IBOutlet UITableView *table;
+
+- (void)doLineSearch;
+
 
 @end

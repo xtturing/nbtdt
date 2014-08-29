@@ -9,6 +9,7 @@
 #import "NBFavoritesViewController.h"
 #import "NBSearch.h"
 #import "NBSearchDetailViewController.h"
+#import "NBLineDetailViewController.h"
 @interface NBFavoritesViewController (){
     UISegmentedControl *segment;
 }
@@ -180,7 +181,13 @@
             [self.navigationController pushViewController:detailViewController animated:YES];
         }
     }else{
-        
+        NSArray *data = [_favoriteLines objectAtIndex:indexPath.row];
+        NBLineDetailViewController *lineDetailViewController = [[NBLineDetailViewController alloc] initWithNibName:@"NBLineDetailViewController" bundle:nil];
+        lineDetailViewController.start = [data objectAtIndex:0];
+        lineDetailViewController.end = [data objectAtIndex:2];
+        lineDetailViewController.lineStyle = [data objectAtIndex:4];
+        lineDetailViewController.isBus = [[data objectAtIndex:5] boolValue];
+        [self.navigationController pushViewController:lineDetailViewController animated:YES];
     }
  
 }
@@ -207,7 +214,17 @@
                 });
             });
         }else{
-            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                NSMutableArray *array = [NSMutableArray arrayWithArray:_favoriteLines];
+                [array removeObjectAtIndex:indexPath.row];
+                _favoriteLines = (NSArray *)array;
+                NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                [defaults setObject:_favoriteLines forKey:@"FAVORITES_LINE" ];
+                [defaults synchronize];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_tableView reloadData];
+                });
+            });
         }
     }
 }

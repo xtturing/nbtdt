@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "AGSGoogleMapLayer.h"
-
+@class NBRoute;
 @interface NBLineServiceViewController : UIViewController
 
 @property (nonatomic, strong) IBOutlet AGSMapView *mapView;
@@ -19,4 +19,8 @@
 @property (nonatomic, strong) AGSGraphicsLayer *graphicsLayer;
 
 - (IBAction)changeStartEnd:(id)sender;
+
+-(void)doLineSearchWithFav:(BOOL )isfav route:(NBRoute *)route;
+-(void)doLineSearchWithFav:(BOOL )isfav lineList:(NSArray *)lines;
+
 @end

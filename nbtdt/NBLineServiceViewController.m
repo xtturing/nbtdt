@@ -23,9 +23,12 @@
 @interface NBLineServiceViewController ()<AGSMapViewLayerDelegate,dataHttpDelegate,AGSMapViewTouchDelegate>{
     BOOL isBus;
     BOOL isStart;
+    BOOL isInitWithFav;
     NSString *start;
     NSString *end;
     NSString *lineStyle;
+    NSString *startAddress;
+    NSString *endAddress;
     AGSGraphic * startGra;
     AGSGraphic * endGra;
 }
@@ -56,7 +59,9 @@
         _geocoder = [[CLGeocoder alloc] init];
     }
     _segment.selectedSegmentIndex = 1;
-    lineStyle = @"2";
+    if(!lineStyle){
+        lineStyle = @"2";
+    }
     [_segment addTarget:self action:@selector(segmentStyleAction:) forControlEvents:UIControlEventValueChanged];
     [_segmentPoint addTarget:self action:@selector(segmentPointAction:) forControlEvents:UIControlEventValueChanged];
     _segmentPoint.enabled = NO;
@@ -79,6 +84,10 @@
     [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
     self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
 	[self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(busLineDetail:) name:@"BusLineDetail" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(routeLineDetail:) name:@"RouteLineDetail" object:nil];
+    
 }
 - (void)viewDidUnload {
     //Stop the GPS, undo the map rotation (if any)
@@ -90,10 +99,23 @@
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [dataHttpManager getInstance].delegate = self;
+    if(isInitWithFav){
+        if(_route){
+            [self doRouteInMap];
+        }
+        if (_lineList) {
+            [self doLineInMap];
+        }
+    }
+
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
     [dataHttpManager getInstance].delegate =  nil;
+}
+
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)didReceiveMemoryWarning
@@ -108,7 +130,12 @@
     
 }
 - (void)mapView:(AGSMapView *)mapView didClickAtPoint:(CGPoint)screen mapPoint:(AGSPoint *)mappoint graphics:(NSDictionary *)graphics{
-    
+    if(isInitWithFav){
+        [self.graphicsLayer removeAllGraphics];
+        [self.graphicsLayer dataChanged];
+        [_scrollView removeFromSuperview];
+        _scrollView = nil;
+    }
     if(!isStart){
         [self addEndPoint:mappoint];
         
@@ -386,13 +413,13 @@
             }
             
         });
-    }    
+    }
+    isInitWithFav = NO;
 }
 
 #pragma -mark
 - (void)didGetFailed{
     [SVProgressHUD dismiss];
-    self.navigationItem.rightBarButtonItem.enabled = NO;
     UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"路线服务发生异常" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
     [view show];
     self.navigationItem.rightBarButtonItem.enabled = NO;
@@ -406,11 +433,25 @@
         self.navigationItem.rightBarButtonItem.enabled = NO;
     }
     
+    [self doRouteInMap];
+}
+
+- (void)didGetBusLines:(NSArray *)lineList{
+    [SVProgressHUD dismiss];
+    _lineList = lineList;
+    if(_lineList && _lineList.count > 0){
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+    }else{
+        self.navigationItem.rightBarButtonItem.enabled = NO;
+    }
+    [self doLineInMap];
+}
+-(void)doRouteInMap{
     AGSPictureMarkerSymbol * jingguo = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImageNamed:@"jingguo.png"];
     AGSSimpleLineSymbol* lineSymbol = [AGSSimpleLineSymbol simpleLineSymbol];
     lineSymbol.color =[UIColor colorWithRed:45.0/255.0 green:140.0/255.0  blue:58.0/255.0 alpha:1.0];
     lineSymbol.width = 6;
- 
+    
     NSMutableArray *points = [[NSMutableArray alloc] initWithCapacity:0];
     NSMutableArray *lines = [[NSMutableArray alloc] initWithCapacity:0];
     [self.graphicsLayer removeAllGraphics];
@@ -467,15 +508,7 @@
         });
     });
 }
-
-- (void)didGetBusLines:(NSArray *)lineList{
-    [SVProgressHUD dismiss];
-    _lineList = lineList;
-    if(_lineList && _lineList.count > 0){
-        self.navigationItem.rightBarButtonItem.enabled = YES;
-    }else{
-        self.navigationItem.rightBarButtonItem.enabled = NO;
-    }
+-(void)doLineInMap{
     [_scrollView removeFromSuperview];
     _scrollView = nil;
     if(!_scrollView){
@@ -502,7 +535,6 @@
     
     [self addBusLineToMap:0];
 }
-
 - (void)selectBusLineButton:(UIButton *)sender{
     [self addBusLineToMap:sender.tag];
 }
@@ -594,7 +626,45 @@
     
     return tmp;
 }
+- (void)busLineDetail:(NSNotification *)notic{
+    NSIndexPath *index = [notic.userInfo objectForKey:@"indexPath"];
+    [self addBusLineToMap:index.section];
+}
+- (void)routeLineDetail:(NSNotification *)notic{
+    NSIndexPath *index = [notic.userInfo objectForKey:@"indexPath"];
+    NBRouteItem *item = (NBRouteItem *)[_route.routeItemList objectAtIndex:index.row];
+    AGSPictureMarkerSymbol * dian = [AGSPictureMarkerSymbol pictureMarkerSymbolWithImageNamed:@"gpscenterpoint"];
+    NSArray *array = [item.turnlatlon componentsSeparatedByString:@","];
+    AGSPoint *point =	[AGSPoint pointWithX:[[array objectAtIndex:0] doubleValue]  y: [[array objectAtIndex:1] doubleValue] spatialReference:nil];
+    if(point.x == 0 || point.y == 0 ){
+        return;
+    }
+    AGSGraphic * pointgra= nil;
+    pointgra = [AGSGraphic graphicWithGeometry:point symbol:nil attributes:nil infoTemplateDelegate:nil];
+    dian.yoffset=16;
+    pointgra.symbol = dian;
+    [self.graphicsLayer addGraphic:pointgra];
+    self.mapView.callout.customView = nil;
+    self.mapView.callout.title = item.streetName;
+    self.mapView.callout.detail = item.strguide;
+    self.mapView.callout.titleColor=[UIColor whiteColor];
+    self.mapView.callout.autoAdjustWidth=YES;
+    self.mapView.callout.cornerRadius=2;
+    self.mapView.callout.accessoryButtonHidden = YES;
+    
+    [self.mapView showCalloutAtPoint:point forGraphic:pointgra animated:YES];
+    
+    [self.mapView centerAtPoint:point animated:YES];
+    [self.graphicsLayer dataChanged];
+}
 
-
+-(void)doLineSearchWithFav:(BOOL )isfav route:(NBRoute *)route{
+    isInitWithFav = isfav;
+    _route = route;
+}
+-(void)doLineSearchWithFav:(BOOL )isfav lineList:(NSArray *)lines{
+    isInitWithFav = isfav;
+    _lineList = lines;
+}
 
 @end
