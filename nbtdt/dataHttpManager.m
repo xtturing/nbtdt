@@ -13,6 +13,8 @@
 #import "NBSearch.h"
 #import "XMLReader.h"
 #import "NBTpk.h"
+#import "DownloadItem.h"
+#import "DownloadManager.h"
 
 #define TIMEOUT 30
 
@@ -178,7 +180,7 @@ static dataHttpManager * instance=nil;
 }
 //
 -(void)letDoTpkList{
-    NSString *baseUrl =[NSString  stringWithFormat:@"%@",HTTP_DOWNLOAD];
+    NSString *baseUrl =[NSString  stringWithFormat:@"%@TpkFileList",HTTP_DOWNLOAD];
     NSURL  *url = [NSURL URLWithString:baseUrl];
     ASIHTTPRequest *request = [[ASIHTTPRequest alloc] initWithURL:url];
     [request setDefaultResponseEncoding:NSUTF8StringEncoding];
@@ -321,11 +323,27 @@ static dataHttpManager * instance=nil;
     }
     
     if(requestType == AAGetTpkList){
-        NSMutableArray  *statuesArr = [[NSMutableArray alloc]initWithCapacity:0];
+        NSMutableDictionary  *statuesArr = [[NSMutableDictionary alloc] initWithCapacity:0];
         for (NSDictionary *item in userArr) {
             if(item && [item isKindOfClass:[NSDictionary class]]){
                 NBTpk *tpk = [NBTpk tpkWithJsonDictionary:item];
-                [statuesArr addObject:tpk];
+                if(tpk.name.length >0){
+                    DownloadItem *downItem=[[DownloadItem alloc] init];
+                    downItem.tpk = tpk;
+                    NSURL  *url = [self getURlWithName:tpk.name];
+                    downItem.url=url;
+                    DownloadItem *task=[[DownloadManager sharedInstance] getDownloadItemByUrl:[downItem.url description]];
+                    downItem.downloadPercent=task.downloadPercent;
+                    if(task)
+                    {
+                        downItem.downloadState=task.downloadState;
+                    }
+                    else
+                    {
+                        downItem.downloadState=DownloadNotStart;
+                    }
+                    [statuesArr setObject:downItem forKey:[downItem.url description]];
+                }
             }
         }
         if ([_delegate respondsToSelector:@selector(didgetTpkList:)]) {
@@ -343,5 +361,10 @@ static dataHttpManager * instance=nil;
     NSLog(@"请求将要跳转");
 }
 
+- (NSURL *)getURlWithName:(NSString *)name{
+    NSMutableDictionary  *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:  name, @"filename",nil];
+    NSString *baseUrl =[NSString  stringWithFormat:@"%@TpkDownload",HTTP_DOWNLOAD];
+    return  [self generateURL:baseUrl params:params];
+}
 
 @end

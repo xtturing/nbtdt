@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		4162EB3F19B361FA00A9E12F /* NBTpk.m in Sources */ = {isa = PBXBuildFile; fileRef = 4162EB3E19B361FA00A9E12F /* NBTpk.m */; };
+		41B76E7A19B37C0600C4F1DB /* DowningCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B76E7819B37C0600C4F1DB /* DowningCell.m */; };
+		41B76E7B19B37C0600C4F1DB /* DowningCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41B76E7919B37C0600C4F1DB /* DowningCell.xib */; };
 		41BBA1B219A78B3300C0A328 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA03C19A78B3200C0A328 /* AFHTTPClient.m */; };
 		41BBA1B319A78B3300C0A328 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA03E19A78B3200C0A328 /* AFHTTPRequestOperation.m */; };
 		41BBA1B419A78B3300C0A328 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA04019A78B3200C0A328 /* AFImageRequestOperation.m */; };
@@ -145,6 +147,9 @@
 		39C5F3A016F8A9920061B21A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		4162EB3D19B361FA00A9E12F /* NBTpk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBTpk.h; sourceTree = "<group>"; };
 		4162EB3E19B361FA00A9E12F /* NBTpk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBTpk.m; sourceTree = "<group>"; };
+		41B76E7719B37C0600C4F1DB /* DowningCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DowningCell.h; sourceTree = "<group>"; };
+		41B76E7819B37C0600C4F1DB /* DowningCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DowningCell.m; sourceTree = "<group>"; };
+		41B76E7919B37C0600C4F1DB /* DowningCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DowningCell.xib; sourceTree = "<group>"; };
 		41BA71E419AB749200AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/NBLineServiceViewController.xib"; sourceTree = "<group>"; };
 		41BA71E519AB749200AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/NBMapViewController.xib"; sourceTree = "<group>"; };
 		41BA71E619AB749300AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
@@ -617,9 +622,12 @@
 		4148237F19AA318700442FA7 /* DownLoadManager */ = {
 			isa = PBXGroup;
 			children = (
-				41BBA0FE19A78B3200C0A328 /* NBDownLoadManagerViewController.h */,
+				41B76E7719B37C0600C4F1DB /* DowningCell.h */,
+				41B76E7819B37C0600C4F1DB /* DowningCell.m */,
+				41B76E7919B37C0600C4F1DB /* DowningCell.xib */,
 				41BBA06E19A78B3200C0A328 /* DownloadHelper */,
 				41BBA0FF19A78B3200C0A328 /* NBDownLoadManagerViewController.m */,
+				41BBA0FE19A78B3200C0A328 /* NBDownLoadManagerViewController.h */,
 				41BBA10019A78B3200C0A328 /* NBDownLoadManagerViewController.xib */,
 				41BBA10119A78B3200C0A328 /* NBDownLoadViewController.h */,
 				41BBA10219A78B3200C0A328 /* NBDownLoadViewController.m */,
@@ -878,6 +886,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				41BBA26919A78B3300C0A328 /* SineWaveViewController.xib in Resources */,
+				41B76E7B19B37C0600C4F1DB /* DowningCell.xib in Resources */,
 				41BBA24319A78B3300C0A328 /* NBDownLoadViewController.xib in Resources */,
 				41BBA24819A78B3300C0A328 /* NBLineDetailViewController.xib in Resources */,
 				41BBA24C19A78B3300C0A328 /* NBNearSearchViewController.xib in Resources */,
@@ -939,6 +948,7 @@
 				41BBA25619A78B3300C0A328 /* NBStationEnd.m in Sources */,
 				41BBA1D419A78B3300C0A328 /* GoogleMapSchema.m in Sources */,
 				41BBA23C19A78B3300C0A328 /* main.m in Sources */,
+				41B76E7A19B37C0600C4F1DB /* DowningCell.m in Sources */,
 				41BBA1C319A78B3300C0A328 /* ASIInputStream.m in Sources */,
 				41BBA1D519A78B3300C0A328 /* GoogleMapTileOperation.m in Sources */,
 				41BBA1B419A78B3300C0A328 /* AFImageRequestOperation.m in Sources */,

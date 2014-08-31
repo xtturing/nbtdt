@@ -7,6 +7,7 @@
 //
 
 #import "ASIHTTPRequest.h"
+#import "NBTpk.h"
 typedef enum  {
     DownloadNotStart=0,
     DownloadWait=1,
@@ -20,7 +21,7 @@ typedef enum  {
 #define kDownloadItemProgressChanged @"DownloadItemProgressChanged"
 
 @interface DownloadItem : ASIHTTPRequest<ASIProgressDelegate,ASIHTTPRequestDelegate>
-
+@property(nonatomic,retain)NBTpk *tpk;
 @property(nonatomic,assign)DownloadItemState downloadState;
 @property(nonatomic,retain)NSString *downloadStateDescription;
 @property(nonatomic,retain)NSDate *createDate;

@@ -9,5 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface NBDownLoadManagerViewController : UIViewController
-
+@property (nonatomic, strong) IBOutlet UITableView *table;
+@property (nonatomic, strong) NSMutableDictionary *tpkList;
 @end
