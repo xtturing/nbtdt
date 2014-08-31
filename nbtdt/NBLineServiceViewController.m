@@ -24,6 +24,7 @@
     BOOL isBus;
     BOOL isStart;
     BOOL isInitWithFav;
+    int lineIndex;
     NSString *start;
     NSString *end;
     NSString *lineStyle;
@@ -533,7 +534,7 @@
     }
     
     
-    [self addBusLineToMap:0];
+    [self addBusLineToMap:lineIndex?lineIndex:0];
 }
 - (void)selectBusLineButton:(UIButton *)sender{
     [self addBusLineToMap:sender.tag];
@@ -658,12 +659,14 @@
     [self.graphicsLayer dataChanged];
 }
 
--(void)doLineSearchWithFav:(BOOL )isfav route:(NBRoute *)route{
+-(void)doLineSearchWithFav:(BOOL )isfav route:(NBRoute *)route  index:(int)index{
     isInitWithFav = isfav;
+    lineIndex = index;
     _route = route;
 }
--(void)doLineSearchWithFav:(BOOL )isfav lineList:(NSArray *)lines{
+-(void)doLineSearchWithFav:(BOOL )isfav lineList:(NSArray *)lines  index:(int)index{
     isInitWithFav = isfav;
+    lineIndex = index;
     _lineList = lines;
 }
 

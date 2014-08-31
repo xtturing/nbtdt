@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface NBDownLoadViewController : UIViewController
-
+@property (nonatomic, strong) IBOutlet UITableView *table;
 @end

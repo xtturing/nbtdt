@@ -25,6 +25,8 @@ typedef enum {
     AAPostError,
     AAGetLineSearch,
     AAGetBusSearch,
+    AAGetTpkList,
+    
     //继续添加
     
 }DataRequestType;
@@ -49,6 +51,10 @@ typedef enum {
 
 //
 -(void)didGetBusLines:(NSArray *)lineList;
+
+//
+
+-(void)didgetTpkList:(NSArray *)tokList;
 
 //继续添加
 @end
@@ -83,5 +89,8 @@ typedef enum {
 
 -(void)letDoBusSearchWithStartposition:(NSString *)startposition endposition:(NSString *)endposition linetype:(NSString *)linetype;
 
+//
+
+-(void)letDoTpkList;
 //继续添加
 @end

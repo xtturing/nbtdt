@@ -20,7 +20,7 @@
 
 - (IBAction)changeStartEnd:(id)sender;
 
--(void)doLineSearchWithFav:(BOOL )isfav route:(NBRoute *)route;
--(void)doLineSearchWithFav:(BOOL )isfav lineList:(NSArray *)lines;
+-(void)doLineSearchWithFav:(BOOL )isfav route:(NBRoute *)route index:(int)index;
+-(void)doLineSearchWithFav:(BOOL )isfav lineList:(NSArray *)lines index:(int)index;
 
 @end

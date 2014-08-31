@@ -12,7 +12,7 @@
 #import "JSON.h"
 #import "NBSearch.h"
 #import "XMLReader.h"
-
+#import "NBTpk.h"
 
 #define TIMEOUT 30
 
@@ -176,6 +176,19 @@ static dataHttpManager * instance=nil;
     [self setGetUserInfo:request withRequestType:AAGetBusSearch];
     [_requestQueue addOperation:request];
 }
+//
+-(void)letDoTpkList{
+    NSString *baseUrl =[NSString  stringWithFormat:@"%@",HTTP_DOWNLOAD];
+    NSURL  *url = [NSURL URLWithString:baseUrl];
+    ASIHTTPRequest *request = [[ASIHTTPRequest alloc] initWithURL:url];
+    [request setDefaultResponseEncoding:NSUTF8StringEncoding];
+    [request setTimeOutSeconds:TIMEOUT];
+    [request setResponseEncoding:NSUTF8StringEncoding];
+    NSLog(@"url=%@",url);
+    [self setGetUserInfo:request withRequestType:AAGetTpkList];
+    [_requestQueue addOperation:request];
+
+}
 //继续添加
 
 #pragma mark - Operate queue
@@ -244,7 +257,7 @@ static dataHttpManager * instance=nil;
         NSArray *arr= [userInfo objectForKey:@"results"];
         NSMutableArray  *statuesArr = [[NSMutableArray alloc]initWithCapacity:0];
         for(NSDictionary *item in arr){
-            if(item){
+            if(item  && [item isKindOfClass:[NSDictionary class]]){
                 NBSearch *result = [NBSearch searchWithJsonDictionary:item];
                 [statuesArr addObject:result];
             }
@@ -258,7 +271,7 @@ static dataHttpManager * instance=nil;
         NSArray *arr= [userInfo objectForKey:@"results"];
         NSMutableArray  *statuesArr = [[NSMutableArray alloc]initWithCapacity:0];
         for(NSDictionary *item in arr){
-            if(item){
+            if(item  && [item isKindOfClass:[NSDictionary class]]){
                 
                 NBSearch *result = [NBSearch searchWithJsonDictionary:item];
                 [statuesArr addObject:result];
@@ -283,7 +296,7 @@ static dataHttpManager * instance=nil;
     if(requestType == AAGetLineSearch){
         NSDictionary *arr= [userInfo objectForKey:@"result"];
         NBRoute *route = nil;
-        if([arr count] > 0){
+        if([arr count] > 0 ){
             route = [NBRoute routeWithJsonDictionary:arr];
         }
         if (_delegate && [_delegate respondsToSelector:@selector(didGetRoute:)] && route) {
@@ -295,7 +308,7 @@ static dataHttpManager * instance=nil;
         NSArray *arr= [[[userInfo objectForKey:@"results"] objectAtIndex:0] objectForKey:@"lines"];
         NSMutableArray  *statuesArr = [[NSMutableArray alloc]initWithCapacity:0];
         for(NSDictionary *item in arr){
-            if(item){
+            if(item  && [item isKindOfClass:[NSDictionary class]]){
                 
                 NBLine *line = [NBLine lineWithJsonDictionary:item];
                 [statuesArr addObject:line];
@@ -307,6 +320,18 @@ static dataHttpManager * instance=nil;
 
     }
     
+    if(requestType == AAGetTpkList){
+        NSMutableArray  *statuesArr = [[NSMutableArray alloc]initWithCapacity:0];
+        for (NSDictionary *item in userArr) {
+            if(item && [item isKindOfClass:[NSDictionary class]]){
+                NBTpk *tpk = [NBTpk tpkWithJsonDictionary:item];
+                [statuesArr addObject:tpk];
+            }
+        }
+        if ([_delegate respondsToSelector:@selector(didgetTpkList:)]) {
+            [_delegate didgetTpkList:statuesArr];
+        }
+    }
     //继续添加
     
     

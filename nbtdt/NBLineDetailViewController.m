@@ -222,9 +222,9 @@
     }else{
         NBLineServiceViewController *lineSeviceViewController = [[NBLineServiceViewController alloc] initWithNibName:@"NBLineServiceViewController" bundle:nil];
         if(_isBus){
-            [lineSeviceViewController doLineSearchWithFav:YES lineList:_lineList];
+            [lineSeviceViewController doLineSearchWithFav:YES lineList:_lineList index:indexPath.section];
         }else{
-            [lineSeviceViewController doLineSearchWithFav:YES route:_route];
+            [lineSeviceViewController doLineSearchWithFav:YES route:_route index:indexPath.section];
         }
         [self.navigationController pushViewController:lineSeviceViewController animated:YES];
     }

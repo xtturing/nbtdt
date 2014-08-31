@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4162EB3F19B361FA00A9E12F /* NBTpk.m in Sources */ = {isa = PBXBuildFile; fileRef = 4162EB3E19B361FA00A9E12F /* NBTpk.m */; };
 		41BBA1B219A78B3300C0A328 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA03C19A78B3200C0A328 /* AFHTTPClient.m */; };
 		41BBA1B319A78B3300C0A328 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA03E19A78B3200C0A328 /* AFHTTPRequestOperation.m */; };
 		41BBA1B419A78B3300C0A328 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA04019A78B3200C0A328 /* AFImageRequestOperation.m */; };
@@ -142,6 +143,8 @@
 		39C5F39C16F8A9920061B21A /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		39C5F39E16F8A9920061B21A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		39C5F3A016F8A9920061B21A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		4162EB3D19B361FA00A9E12F /* NBTpk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBTpk.h; sourceTree = "<group>"; };
+		4162EB3E19B361FA00A9E12F /* NBTpk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBTpk.m; sourceTree = "<group>"; };
 		41BA71E419AB749200AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/NBLineServiceViewController.xib"; sourceTree = "<group>"; };
 		41BA71E519AB749200AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/NBMapViewController.xib"; sourceTree = "<group>"; };
 		41BA71E619AB749300AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
@@ -514,6 +517,8 @@
 				41BBA12519A78B3200C0A328 /* NBStationEnd.m */,
 				41BBA12619A78B3200C0A328 /* NBStationStart.h */,
 				41BBA12719A78B3200C0A328 /* NBStationStart.m */,
+				4162EB3D19B361FA00A9E12F /* NBTpk.h */,
+				4162EB3E19B361FA00A9E12F /* NBTpk.m */,
 			);
 			name = dataModel;
 			sourceTree = "<group>";
@@ -926,6 +931,7 @@
 				41BBA1C419A78B3300C0A328 /* ASINetworkQueue.m in Sources */,
 				41BBA25819A78B3300C0A328 /* NBToolView.m in Sources */,
 				41BBA1C619A78B3300C0A328 /* NSHTTPCookieAdditions.m in Sources */,
+				4162EB3F19B361FA00A9E12F /* NBTpk.m in Sources */,
 				41BBA24A19A78B3300C0A328 /* NBMapViewController.m in Sources */,
 				41BBA24919A78B3300C0A328 /* NBLineServiceViewController.m in Sources */,
 				41BBA28D19A78B3300C0A328 /* XMLReader.m in Sources */,
