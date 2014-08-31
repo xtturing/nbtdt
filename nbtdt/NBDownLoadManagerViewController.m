@@ -65,9 +65,11 @@
 }
 -(void)updateCell:(DowningCell *)cell withDownItem:(DownloadItem *)downItem
 {
-    if(downItem.tpk.title.length > 0 ){
-        cell.lblTitle.text=[downItem.tpk.title description];
-        cell.lblPercent.text=[NSString stringWithFormat:@"大小:%0.2fMB  进度:%0.2f%@",[downItem.tpk.size doubleValue]/(1024*1024),downItem.downloadPercent*100,@"%"];
+    
+    DownloadItem *findItem=[_tpkList objectForKey:[downItem.url description]];
+    if(findItem.tpk.title.length > 0 ){
+        cell.lblTitle.text=[findItem.tpk.title description];
+        cell.lblPercent.text=[NSString stringWithFormat:@"大小:%0.2fMB  进度:%0.2f%@",[findItem.tpk.size doubleValue]/(1024*1024),downItem.downloadPercent*100,@"%"];
         [cell.btnOperate setTitle:downItem.downloadStateDescription forState:UIControlStateNormal];
     }else{
         cell.lblTitle.text=[downItem.url description];
@@ -78,7 +80,7 @@
 }
 -(void)updateUIByDownloadItem:(DownloadItem *)downItem
 {
-    DownloadItem *findItem=[_tpkList objectForKey:[downItem.url description]];
+    DownloadItem *findItem=[_downlist objectForKey:[downItem.url description]];
     if(findItem==nil)
     {
         return;
@@ -105,7 +107,7 @@
     
     int index=[_downlist.allKeys indexOfObject:[downItem.url description]];
     DowningCell *cell=(DowningCell *)[self.table cellForRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
-    [self updateCell:cell withDownItem:findItem];
+    [self updateCell:cell withDownItem:downItem];
 }
 
 -(void)downloadNotification:(NSNotification *)notif
@@ -120,7 +122,9 @@
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     DownloadItem *downItem = [_downlist.allValues objectAtIndex:indexPath.row];
+    
     DownloadItem *findItem=[_tpkList objectForKey:[downItem.url description]];
+    
     NSString *url=[downItem.url description];
     
     static NSString *cellIdentity=@"DowningCell";
@@ -135,7 +139,7 @@
                 [[DownloadManager sharedInstance]pauseDownload:url];
                 return;
             }
-            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:[[Utility sharedInstance] md5HexDigest:url]];
+            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",findItem.tpk?findItem.tpk.name:[NSString stringWithFormat:@"%@.tpk",[[Utility sharedInstance] md5HexDigest:url]]]];
             [[DownloadManager sharedInstance]startDownload:url withLocalPath:desPath];
         };
         cell.DowningCellCancelClick=^(DowningCell *cell)
@@ -143,7 +147,7 @@
             [[DownloadManager sharedInstance]cancelDownload:url];
         };
     }
-    [self updateCell:cell withDownItem:findItem];
+    [self updateCell:cell withDownItem:downItem];
     
     
     return cell;

@@ -87,8 +87,9 @@
 
 -(void)updateCell:(DowningCell *)cell withDownItem:(DownloadItem *)downItem
 {
-    cell.lblTitle.text=[downItem.tpk.title description];
-    cell.lblPercent.text=[NSString stringWithFormat:@"大小:%0.2fMB  进度:%0.2f%@",[downItem.tpk.size doubleValue]/(1024*1024),downItem.downloadPercent*100,@"%"];
+    DownloadItem *findItem=[_tpkList objectForKey:[downItem.url description]];
+    cell.lblTitle.text=[findItem.tpk.title description];
+    cell.lblPercent.text=[NSString stringWithFormat:@"大小:%0.2fMB  进度:%0.2f%@",[findItem.tpk.size doubleValue]/(1024*1024),downItem.downloadPercent*100,@"%"];
     [cell.btnOperate setTitle:downItem.downloadStateDescription forState:UIControlStateNormal];
 }
 -(void)updateUIByDownloadItem:(DownloadItem *)downItem
@@ -120,7 +121,7 @@
     
     int index=[_tpkList.allKeys indexOfObject:[downItem.url description]];
     DowningCell *cell=(DowningCell *)[self.table cellForRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
-    [self updateCell:cell withDownItem:findItem];
+    [self updateCell:cell withDownItem:downItem];
 }
 
 -(void)downloadNotification:(NSNotification *)notif
@@ -149,7 +150,7 @@
                 [[DownloadManager sharedInstance]pauseDownload:url];
                 return;
             }
-            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:[[Utility sharedInstance] md5HexDigest:url]];
+            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",downItem.tpk?downItem.tpk.name:[NSString stringWithFormat:@"%@.tpk",[[Utility sharedInstance] md5HexDigest:url]]]];
             [[DownloadManager sharedInstance]startDownload:url withLocalPath:desPath];
         };
         cell.DowningCellCancelClick=^(DowningCell *cell)
