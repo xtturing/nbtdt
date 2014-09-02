@@ -327,7 +327,7 @@ static dataHttpManager * instance=nil;
         for (NSDictionary *item in userArr) {
             if(item && [item isKindOfClass:[NSDictionary class]]){
                 NBTpk *tpk = [NBTpk tpkWithJsonDictionary:item];
-                if(tpk.name.length >0){
+                if(tpk.name.length >0 && [tpk.type isEqualToString:@"ios"]){
                     DownloadItem *downItem=[[DownloadItem alloc] init];
                     downItem.tpk = tpk;
                     NSURL  *url = [self getURlWithName:tpk.name];

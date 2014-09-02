@@ -17,6 +17,7 @@
         _range=[dic getStringValueForKey:@"range" defaultValue:@""];
         _size=[dic getStringValueForKey:@"size" defaultValue:@""];
         _title=[dic getStringValueForKey:@"title" defaultValue:@""];
+        _type=[dic getStringValueForKey:@"type" defaultValue:@""];
     }
     return self;
 }

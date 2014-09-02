@@ -10,4 +10,5 @@
 
 @interface NBDownLoadViewController : UIViewController
 @property (nonatomic, strong) IBOutlet UITableView *table;
+@property (nonatomic, strong) NSArray *layers;
 @end

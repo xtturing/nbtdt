@@ -283,7 +283,18 @@ static DownloadManager *_instance;
         [downItem cancelDownloadTask];
         [_pauseQueue removeObjectForKey:resourceUrl];
     }
-
+    downItem=[_finishedQueue objectForKey:resourceUrl];
+    if(downItem)
+    {
+        dispatch_async(dispatch_get_global_queue(0, 0), ^(void){
+            [[DownloadStoreManager sharedInstance]deleteDownloadTask:resourceUrl];
+            NSString *name =[[[downItem.url description] componentsSeparatedByString:@"="] objectAtIndex:1];
+            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:name];
+            NSError *error = nil;
+            [ASIHTTPRequest removeFileAtPath:desPath error:&error];
+        });
+        [_finishedQueue removeObjectForKey:resourceUrl];
+    }
 }
 
 

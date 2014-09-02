@@ -72,7 +72,7 @@
         cell.lblPercent.text=[NSString stringWithFormat:@"大小:%0.2fMB  进度:%0.2f%@",[findItem.tpk.size doubleValue]/(1024*1024),downItem.downloadPercent*100,@"%"];
         [cell.btnOperate setTitle:downItem.downloadStateDescription forState:UIControlStateNormal];
     }else{
-        cell.lblTitle.text=[downItem.url description];
+        cell.lblTitle.text=[[[downItem.url description] componentsSeparatedByString:@"="] objectAtIndex:1];
         cell.lblPercent.text=[NSString stringWithFormat:@"大小:%0.2fMB  进度:%0.2f%@",downItem.totalLength/(1024*1024),downItem.downloadPercent*100,@"%"];
         [cell.btnOperate setTitle:downItem.downloadStateDescription forState:UIControlStateNormal];
     }
@@ -81,6 +81,7 @@
 -(void)updateUIByDownloadItem:(DownloadItem *)downItem
 {
     DownloadItem *findItem=[_downlist objectForKey:[downItem.url description]];
+    
     if(findItem==nil)
     {
         return;
@@ -122,11 +123,10 @@
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     DownloadItem *downItem = [_downlist.allValues objectAtIndex:indexPath.row];
-    
-    DownloadItem *findItem=[_tpkList objectForKey:[downItem.url description]];
-    
+
     NSString *url=[downItem.url description];
-    
+    NSString *name = [[url componentsSeparatedByString:@"="] objectAtIndex:1];
+
     static NSString *cellIdentity=@"DowningCell";
     DowningCell *cell=[tableView dequeueReusableCellWithIdentifier:cellIdentity];
     if(cell==nil)
@@ -139,7 +139,7 @@
                 [[DownloadManager sharedInstance]pauseDownload:url];
                 return;
             }
-            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",findItem.tpk?findItem.tpk.name:[NSString stringWithFormat:@"%@.tpk",[[Utility sharedInstance] md5HexDigest:url]]]];
+            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:name];
             [[DownloadManager sharedInstance]startDownload:url withLocalPath:desPath];
         };
         cell.DowningCellCancelClick=^(DowningCell *cell)
@@ -148,12 +148,32 @@
         };
     }
     [self updateCell:cell withDownItem:downItem];
-    
-    
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"] && [self hasAddLocalLayer:name]){
+        cell.lblTitle.text=@"已加载";
+    }
     return cell;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     return [_downlist count];
 }
-
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    DowningCell *cell=(DowningCell *)[self.table cellForRowAtIndexPath:indexPath];
+    DownloadItem *downItem = [_downlist.allValues objectAtIndex:indexPath.row];
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"]){
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"addLocalTileLayer" object:nil userInfo:[NSDictionary dictionaryWithObject:[[[downItem.url description] componentsSeparatedByString:@"="] objectAtIndex:1] forKey:@"name"]];
+        [self.navigationController popToRootViewControllerAnimated:YES];
+        
+    }
+}
+- (BOOL)hasAddLocalLayer:(NSString *)name{
+    if(self.layers == nil || self.layers.count == 0){
+        return NO;
+    }
+    for(AGSTiledLayer *layer in self.layers){
+        if([layer isKindOfClass:[AGSLocalTiledLayer class]] && [layer.name isEqualToString:name]){
+            return YES;
+        }
+    }
+    return NO;
+}
 @end

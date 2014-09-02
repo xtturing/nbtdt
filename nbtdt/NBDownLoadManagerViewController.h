@@ -11,4 +11,5 @@
 @interface NBDownLoadManagerViewController : UIViewController
 @property (nonatomic, strong) IBOutlet UITableView *table;
 @property (nonatomic, strong) NSMutableDictionary *tpkList;
+@property (nonatomic, strong) NSArray *layers;
 @end

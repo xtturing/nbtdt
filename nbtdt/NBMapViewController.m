@@ -146,6 +146,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gpsPointInMap:) name:@"SearchDetailGPSPoint" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(searchPointsInMap:) name:@"searchPointsInMap" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addLocalTileLayer:) name:@"addLocalTileLayer" object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -196,6 +197,28 @@
 	[self.mapView insertMapLayer:_wmsMapLayer withName:@"wmsLayer" atIndex:0];
     AGSGoogleMapLayer *wmsLabelLayer = [[AGSGoogleMapLayer alloc] initWithGoogleMapSchema:nil tdPath:KWMSTDTLabel envelope:[AGSEnvelope envelopeWithXmin:119.65171432515596 ymin:29.021148681921858 xmax:123.40354537984406  ymax:30.441131592078335  spatialReference:self.mapView.spatialReference] level:@"18"];
     [self.mapView insertMapLayer:wmsLabelLayer withName:@"wmsLabelLayer" atIndex:1];
+}
+
+- (void)addLocalTileLayer:(NSNotification *)notification{
+    NSString *fileName = [notification.userInfo objectForKey:@"name"];
+    NSString *name = [[fileName componentsSeparatedByString:@"."] objectAtIndex:0];
+    NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:fileName];
+    if(![self hasAddLocalLayer:name]){
+        AGSLocalTiledLayer *localTileLayer = [AGSLocalTiledLayer localTiledLayerWithPath:desPath];
+        [self.mapView addMapLayer:localTileLayer withName:name];
+    }else{
+        [self.mapView removeMapLayerWithName:name];
+    }
+    
+}
+
+- (BOOL)hasAddLocalLayer:(NSString *)name{
+    for(AGSTiledLayer *layer in self.mapView.mapLayers){
+        if([layer isKindOfClass:[AGSLocalTiledLayer class]] && [layer.name isEqualToString:name]){
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (void)zooMapToLevel:(int)level withCenter:(AGSPoint *)point{
@@ -423,6 +446,7 @@
         case 100:
         {
             NBDownLoadViewController *down = [[NBDownLoadViewController alloc] initWithNibName:@"NBDownLoadViewController" bundle:nil];
+            down.layers = self.mapView.mapLayers;
             [self.navigationController pushViewController:down animated:YES];
         }
             break;
@@ -549,7 +573,9 @@
         if(![reach isReachableViaWiFi]){
             
         }else{
-            
+            UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用下载功能" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [view show];
+
         }
     }
     else

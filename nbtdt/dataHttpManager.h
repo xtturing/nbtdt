@@ -16,7 +16,7 @@
 #define HTTP_SEARCH_URL       @"http://api.tianditu.com/api/api-new"
 #define HTTP_ERRORURL         @"http://60.190.2.120:10087/mobile/new/"
 #define HTTP_SEARCH           @"http://60.190.2.120:10087/baiduQuery"
-#define HTTP_DOWNLOAD         @"http://60.190.2.120/tpkService/"
+#define HTTP_DOWNLOAD         @"http://www.nbmap.gov.cn/tpkService/"
 #define REQUEST_TYPE          @"requestType"
 
 typedef enum {

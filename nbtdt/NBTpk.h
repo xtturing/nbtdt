@@ -15,6 +15,7 @@
 @property (nonatomic, strong) NSString *range;
 @property (nonatomic, strong) NSString *size;
 @property (nonatomic, strong) NSString *title;
+@property (nonatomic, strong) NSString *type;
 
 - (NBTpk *)initWithJsonDictionary:(NSDictionary*)dic;
 

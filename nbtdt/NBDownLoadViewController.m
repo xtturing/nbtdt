@@ -43,7 +43,7 @@
     
     UIBarButtonItem *right = [[UIBarButtonItem alloc] initWithTitle:@"下载管理" style:UIBarButtonItemStylePlain target:self action:@selector(downloadManager)];
     self.navigationItem.rightBarButtonItem = right;
-    self.navigationItem.rightBarButtonItem.enabled = NO;
+    self.navigationItem.rightBarButtonItem.enabled = YES;
     [SVProgressHUD showWithMaskType:SVProgressHUDMaskTypeGradient];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [[dataHttpManager getInstance] letDoTpkList];
@@ -74,6 +74,12 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)didGetFailed{
+    [SVProgressHUD dismiss];
+    UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"离线下载发生异常" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+    [view show];
 }
 
 -(void)didgetTpkList:(NSMutableDictionary *)tokList{
@@ -137,7 +143,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     DownloadItem *downItem = [_tpkList.allValues objectAtIndex:indexPath.row];
     NSString *url=[downItem.url description];
-    
+    NSString *name = [[url componentsSeparatedByString:@"="] objectAtIndex:1];
     static NSString *cellIdentity=@"DowningCell";
     DowningCell *cell=[tableView dequeueReusableCellWithIdentifier:cellIdentity];
     if(cell==nil)
@@ -150,7 +156,7 @@
                 [[DownloadManager sharedInstance]pauseDownload:url];
                 return;
             }
-            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@",downItem.tpk?downItem.tpk.name:[NSString stringWithFormat:@"%@.tpk",[[Utility sharedInstance] md5HexDigest:url]]]];
+            NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:name];
             [[DownloadManager sharedInstance]startDownload:url withLocalPath:desPath];
         };
         cell.DowningCellCancelClick=^(DowningCell *cell)
@@ -159,8 +165,9 @@
         };
     }
     [self updateCell:cell withDownItem:downItem];
-    
-    
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"] && [self hasAddLocalLayer:name]){
+        cell.lblTitle.text=@"已加载";
+    }
     return cell;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
@@ -168,30 +175,29 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    Reachability *r = [Reachability reachabilityForInternetConnection];
-    switch ([r currentReachabilityStatus]) {
-        case NotReachable:{
-            UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"网络无法链接" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            [view show];
-        }
-            break;
-        case ReachableViaWWAN:{
-            UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用下载功能" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            [view show];
-        }
-            // 使用3G网络
-            break;
-        case ReachableViaWiFi:{
-            
-            NBDownLoadManagerViewController *manager = [[NBDownLoadManagerViewController alloc]initWithNibName:@"NBDownLoadManagerViewController" bundle:nil];
-            manager.tpkList = _tpkList;
-            [self.navigationController pushViewController:manager animated:YES];
-        }
-            // 使用WiFi网络
-            break;
+    DowningCell *cell=(DowningCell *)[self.table cellForRowAtIndexPath:indexPath];
+    DownloadItem *downItem = [_tpkList.allValues objectAtIndex:indexPath.row];
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"]){
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"addLocalTileLayer" object:nil userInfo:[NSDictionary dictionaryWithObject:[[[downItem.url description] componentsSeparatedByString:@"="] objectAtIndex:1] forKey:@"name"]];
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }else{
+        NBDownLoadManagerViewController *manager = [[NBDownLoadManagerViewController alloc]initWithNibName:@"NBDownLoadManagerViewController" bundle:nil];
+        manager.tpkList = _tpkList;
+        manager.layers = self.layers;
+        [self.navigationController pushViewController:manager animated:YES];
     }
-    
-   
+}
+
+- (BOOL)hasAddLocalLayer:(NSString *)name{
+    if(self.layers == nil || self.layers.count == 0){
+        return NO;
+    }
+    for(AGSTiledLayer *layer in self.layers){
+        if([layer isKindOfClass:[AGSLocalTiledLayer class]] && [layer.name isEqualToString:name]){
+            return YES;
+        }
+    }
+    return NO;
 }
 
 
