@@ -112,7 +112,7 @@
         [[DownloadStoreManager sharedInstance]insertDownloadTask:self];
     });
 
-    _progressTimer=[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(monitorDownloadProgress:) userInfo:nil repeats:YES];
+    _progressTimer=[NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(monitorDownloadProgress:) userInfo:nil repeats:YES];
     _isFristReciveBytes=YES;
     self.downloadState=DownloadWait;
     NSLog(@"start download url:%@",self.url);
@@ -145,6 +145,23 @@
     self.downloadState=DownloadNotStart;
 }
 
+-(void)deleteDownloadTask
+{
+    self.receivedLength=0;
+    self.totalLength=0;
+    self.downloadPercent=0;
+    //delete db in background
+    dispatch_async(dispatch_get_global_queue(0, 0), ^(void){
+        [[DownloadStoreManager sharedInstance]deleteDownloadTask:[self.url description]];
+        NSString *name =[[[self.url description] componentsSeparatedByString:@"="] objectAtIndex:1];
+        NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:name];
+        NSError *error = nil;
+
+        [DownloadItem removeFileAtPath:desPath error:&error];
+    });
+    [self pauseDownloadTask];
+    self.downloadState=DownloadNotStart;
+}
 
 #pragma mark - asi delegate
 -(void)request:(ASIHTTPRequest *)request didReceiveResponseHeaders:(NSDictionary *)_responseHeaders

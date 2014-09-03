@@ -18,6 +18,7 @@
 #import "NBSearchTableViewController.h"
 #import "CLLocation+Sino.h"
 #import "NBSearchDetailViewController.h"
+#import "NBDownLoadManagerViewController.h"
 #import "dataHttpManager.h"
 
 //contants for data layers
@@ -119,7 +120,7 @@
                                                object:nil];
     Reachability *reach = [Reachability reachabilityForInternetConnection];
     [reach startNotifier];
-    
+     [self updateInterfaceWithReachability:reach];
     fakeTextField = [[UITextField alloc] initWithFrame:CGRectZero];
     [fakeTextField setHidden:NO];
     [self.view addSubview:fakeTextField];
@@ -138,7 +139,9 @@
     self.bar.delegate = self;
     self.mapView.layerDelegate = self;
      self.mapView.calloutDelegate=self;
-    [self addTileLayer];
+   
+//    [self addTileLayer];
+    [self addLocalTileLayerWithName:@"nbsbase917.tpk"];
     [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
     // Do any additional setup after loading the view from its nib.
     self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
@@ -147,6 +150,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gpsPointInMap:) name:@"SearchDetailGPSPoint" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(searchPointsInMap:) name:@"searchPointsInMap" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addLocalTileLayer:) name:@"addLocalTileLayer" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(removeLocalTileLayer:) name:@"removeLocalTileLayer" object:nil];
 }
 
 - (void)didReceiveMemoryWarning
@@ -166,6 +170,7 @@
 
 - (void)dealloc{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    self.mapView = nil;
 }
 - (void)viewDidUnload {
     //Stop the GPS, undo the map rotation (if any)
@@ -201,15 +206,26 @@
 
 - (void)addLocalTileLayer:(NSNotification *)notification{
     NSString *fileName = [notification.userInfo objectForKey:@"name"];
-    NSString *name = [[fileName componentsSeparatedByString:@"."] objectAtIndex:0];
-    NSString *desPath=[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:fileName];
-    if(![self hasAddLocalLayer:name]){
-        AGSLocalTiledLayer *localTileLayer = [AGSLocalTiledLayer localTiledLayerWithPath:desPath];
-        [self.mapView addMapLayer:localTileLayer withName:name];
+    [self addLocalTileLayerWithName:fileName];
+}
+
+- (void)addLocalTileLayerWithName:(NSString *)fileName{
+    NSString *name = [fileName stringByDeletingPathExtension];
+    NSString *extension = @"tpk";
+    if(![self hasAddLocalLayer:name] && [[fileName pathExtension] isEqualToString:extension]){
+        AGSLocalTiledLayer *localTileLayer = [AGSLocalTiledLayer localTiledLayerWithName:fileName];
+        if(localTileLayer != nil){
+            [self.mapView insertMapLayer:localTileLayer withName:name atIndex:0];
+        }
     }else{
         [self.mapView removeMapLayerWithName:name];
     }
-    
+}
+
+- (void)removeLocalTileLayer:(NSNotification *)notification{
+    NSString *fileName = [notification.userInfo objectForKey:@"name"];
+    NSString *name = [fileName stringByDeletingPathExtension];
+    [self.mapView removeMapLayerWithName:name];
 }
 
 - (BOOL)hasAddLocalLayer:(NSString *)name{
@@ -222,9 +238,16 @@
 }
 
 - (void)zooMapToLevel:(int)level withCenter:(AGSPoint *)point{
-    AGSGoogleMapLayer *layer = (AGSGoogleMapLayer *)[self.mapView.mapLayers objectAtIndex:0];
-    AGSLOD *lod = [layer.tileInfo.lods objectAtIndex:level];
-    [self.mapView zoomToResolution:lod.resolution withCenterPoint:point animated:YES];
+    if(self.mapView.mapLayers.count > 0){
+        AGSTiledLayer *tileLayer = [self.mapView.mapLayers objectAtIndex:0];
+        if([tileLayer isKindOfClass:[AGSGoogleMapLayer class]]){
+            AGSGoogleMapLayer *layer = (AGSGoogleMapLayer *)tileLayer;
+            AGSLOD *lod = [layer.tileInfo.lods objectAtIndex:level];
+            [self.mapView zoomToResolution:lod.resolution withCenterPoint:point animated:YES];
+        }
+    }
+    
+    
 }
 
 
@@ -439,15 +462,24 @@
     }
     return _toolView;
 }
+- (void)addDownLoadViewController{
+    NBDownLoadViewController *down = [[NBDownLoadViewController alloc] initWithNibName:@"NBDownLoadViewController" bundle:nil];
+    down.layers = self.mapView.mapLayers;
+    [self.navigationController pushViewController:down animated:YES];
+}
 
+- (void)addDownLoadManagerViewController{
+    NBDownLoadManagerViewController *down = [[NBDownLoadManagerViewController alloc] initWithNibName:@"NBDownLoadManagerViewController" bundle:nil];
+    down.layers = self.mapView.mapLayers;
+    down.segIndex = 1;
+    [self.navigationController pushViewController:down animated:YES];
+}
 #pragma mark - toolDelegate
 - (void)toolButtonClick:(int)buttonTag{
     switch (buttonTag) {
         case 100:
         {
-            NBDownLoadViewController *down = [[NBDownLoadViewController alloc] initWithNibName:@"NBDownLoadViewController" bundle:nil];
-            down.layers = self.mapView.mapLayers;
-            [self.navigationController pushViewController:down animated:YES];
+            [self addDownLoadViewController];
         }
             break;
         case 101:
@@ -566,24 +598,24 @@
 
 -(void)reachabilityChanged:(NSNotification*)note
 {
-    Reachability * reach = [note object];
+    Reachability * curReach = [note object];
+    NSParameterAssert([curReach isKindOfClass: [Reachability class]]);
+    [self updateInterfaceWithReachability: curReach];
     
-    if([reach isReachable])
+}
+- (void) updateInterfaceWithReachability: (Reachability*) curReach{
+    if([curReach isReachable])
     {
-        if(![reach isReachableViaWiFi]){
-            
-        }else{
-            UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用下载功能" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            [view show];
-
+        if(![curReach isReachableViaWiFi]){
+            [self showMessageWithAlert:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用功能"];
         }
     }
     else
     {
         [self showMessageWithAlert:@"网络链接断开"];
+        [self performSelector:@selector(addDownLoadManagerViewController) withObject:nil afterDelay:2.0f];
     }
 }
-
 #pragma mark - UIAlertView
 
 - (void)showMessageWithAlert:(NSString *)message{

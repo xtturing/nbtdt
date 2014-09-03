@@ -35,6 +35,7 @@ typedef enum  {
 -(void)startDownloadTask;
 -(void)pauseDownloadTask;
 -(void)cancelDownloadTask;
+-(void)deleteDownloadTask;
 
 +(NSString *)getDownloadStateDescriptionFromState:(DownloadItemState)state;
 

@@ -38,8 +38,17 @@
     UISegmentedControl *segment = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"正在下载",@"已完成", nil]];
     segment.frame = CGRectMake(0, 7, 140, 30);
     segment.segmentedControlStyle = UISegmentedControlStyleBar;
-    segment.selectedSegmentIndex = 0;
-    _downlist = [[DownloadManager sharedInstance]getDownloadingTask];
+    if(_segIndex){
+        segment.selectedSegmentIndex = _segIndex;
+    }else{
+        
+        segment.selectedSegmentIndex = 0;
+    }
+    if(segment.selectedSegmentIndex == 0){
+        _downlist = [[DownloadManager sharedInstance]getDownloadingTask];
+    }else{
+        _downlist = [[DownloadManager sharedInstance]getFinishedTask];
+    }
     [segment addTarget:self action:@selector(segmentAction:)forControlEvents:UIControlEventValueChanged];
     
     self.navigationItem.titleView = segment;
@@ -145,11 +154,12 @@
         cell.DowningCellCancelClick=^(DowningCell *cell)
         {
             [[DownloadManager sharedInstance]cancelDownload:url];
+            
         };
     }
     [self updateCell:cell withDownItem:downItem];
-    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"] && [self hasAddLocalLayer:name]){
-        cell.lblTitle.text=@"已加载";
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"] && [self hasAddLocalLayer:[name stringByDeletingPathExtension]]){
+        [cell.btnOperate setTitle:@"已加载" forState:UIControlStateNormal];
     }
     return cell;
 }
@@ -159,10 +169,14 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     DowningCell *cell=(DowningCell *)[self.table cellForRowAtIndexPath:indexPath];
     DownloadItem *downItem = [_downlist.allValues objectAtIndex:indexPath.row];
-    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"]){
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"] && downItem.downloadPercent == 1){
         [[NSNotificationCenter defaultCenter] postNotificationName:@"addLocalTileLayer" object:nil userInfo:[NSDictionary dictionaryWithObject:[[[downItem.url description] componentsSeparatedByString:@"="] objectAtIndex:1] forKey:@"name"]];
         [self.navigationController popToRootViewControllerAnimated:YES];
         
+    }
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"已加载"]){
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"removeLocalTileLayer" object:nil userInfo:[NSDictionary dictionaryWithObject:[[[downItem.url description] componentsSeparatedByString:@"="] objectAtIndex:1] forKey:@"name"]];
+        [self.table reloadData];
     }
 }
 - (BOOL)hasAddLocalLayer:(NSString *)name{

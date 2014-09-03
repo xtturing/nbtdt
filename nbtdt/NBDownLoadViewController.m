@@ -66,6 +66,7 @@
 - (void)downloadManager{
     NBDownLoadManagerViewController *manager = [[NBDownLoadManagerViewController alloc]initWithNibName:@"NBDownLoadManagerViewController" bundle:nil];
      manager.tpkList = _tpkList;
+    manager.layers =self.layers;
     [self.navigationController pushViewController:manager animated:YES];
 }
 
@@ -165,8 +166,8 @@
         };
     }
     [self updateCell:cell withDownItem:downItem];
-    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"] && [self hasAddLocalLayer:name]){
-        cell.lblTitle.text=@"已加载";
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"] && [self hasAddLocalLayer:[name stringByDeletingPathExtension]]){
+        [cell.btnOperate setTitle:@"已加载" forState:UIControlStateNormal];
     }
     return cell;
 }
@@ -177,14 +178,14 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     DowningCell *cell=(DowningCell *)[self.table cellForRowAtIndexPath:indexPath];
     DownloadItem *downItem = [_tpkList.allValues objectAtIndex:indexPath.row];
-    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"]){
+    if([cell.btnOperate.titleLabel.text isEqualToString:@"下载完成"] && downItem.downloadPercent == 1){
         [[NSNotificationCenter defaultCenter] postNotificationName:@"addLocalTileLayer" object:nil userInfo:[NSDictionary dictionaryWithObject:[[[downItem.url description] componentsSeparatedByString:@"="] objectAtIndex:1] forKey:@"name"]];
         [self.navigationController popToRootViewControllerAnimated:YES];
+    }else if([cell.btnOperate.titleLabel.text isEqualToString:@"已加载"]){
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"removeLocalTileLayer" object:nil userInfo:[NSDictionary dictionaryWithObject:[[[downItem.url description] componentsSeparatedByString:@"="] objectAtIndex:1] forKey:@"name"]];
+        [self.table reloadData];
     }else{
-        NBDownLoadManagerViewController *manager = [[NBDownLoadManagerViewController alloc]initWithNibName:@"NBDownLoadManagerViewController" bundle:nil];
-        manager.tpkList = _tpkList;
-        manager.layers = self.layers;
-        [self.navigationController pushViewController:manager animated:YES];
+        [self downloadManager];
     }
 }
 
