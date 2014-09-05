@@ -113,7 +113,6 @@
 {
     [super viewDidLoad];
     
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(reachabilityChanged:)
                                                  name:kReachabilityChangedNotification
@@ -137,15 +136,6 @@
         self.edgesForExtendedLayout = UIRectEdgeNone;
     }
     self.bar.delegate = self;
-    self.mapView.layerDelegate = self;
-     self.mapView.calloutDelegate=self;
-   
-//    [self addTileLayer];
-    [self addLocalTileLayerWithName:@"nbsbase917.tpk"];
-    [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
-    // Do any additional setup after loading the view from its nib.
-    self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
-	[self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gpsPointInMap:) name:@"SearchDetailGPSPoint" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(searchPointsInMap:) name:@"searchPointsInMap" object:nil];
@@ -214,8 +204,21 @@
     NSString *extension = @"tpk";
     if(![self hasAddLocalLayer:name] && [[fileName pathExtension] isEqualToString:extension]){
         AGSLocalTiledLayer *localTileLayer = [AGSLocalTiledLayer localTiledLayerWithName:fileName];
+        self.mapView.maxEnvelope = [AGSEnvelope envelopeWithXmin:localTileLayer.fullEnvelope.xmin ymin:localTileLayer.fullEnvelope.ymin xmax:localTileLayer.fullEnvelope.xmax ymax:localTileLayer.fullEnvelope.ymax spatialReference:localTileLayer.spatialReference];
         if(localTileLayer != nil){
-            [self.mapView insertMapLayer:localTileLayer withName:name atIndex:0];
+            for(AGSTiledLayer *layer in self.mapView.mapLayers){
+                [self.mapView removeMapLayerWithName:layer.name];
+            }
+            self.mapView.layerDelegate = nil;
+            self.mapView.calloutDelegate=nil;
+            [self.mapView addMapLayer:localTileLayer withName:name];
+            [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
+            [self.mapView zoomIn:YES];
+            self.mapView.layerDelegate = self;
+            self.mapView.calloutDelegate=self;
+            // Do any additional setup after loading the view from its nib.
+            self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
+            [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
         }
     }else{
         [self.mapView removeMapLayerWithName:name];
@@ -606,15 +609,32 @@
 - (void) updateInterfaceWithReachability: (Reachability*) curReach{
     if([curReach isReachable])
     {
-        if(![curReach isReachableViaWiFi]){
+        if([curReach isReachableViaWiFi]){
+            for(AGSTiledLayer *layer in self.mapView.mapLayers){
+                [self.mapView removeMapLayerWithName:layer.name];
+            }
+            self.mapView.layerDelegate = nil;
+            self.mapView.calloutDelegate=nil;
+            [self addTileLayer];
+            [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
+            
+            self.mapView.layerDelegate = self;
+            self.mapView.calloutDelegate=self;
+            // Do any additional setup after loading the view from its nib.
+            self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
+            [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
+            return;
+        }else{
             [self showMessageWithAlert:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用功能"];
         }
+        
     }
     else
     {
         [self showMessageWithAlert:@"网络链接断开"];
-        [self performSelector:@selector(addDownLoadManagerViewController) withObject:nil afterDelay:2.0f];
+       
     }
+     [self performSelector:@selector(addDownLoadManagerViewController) withObject:nil afterDelay:2.0f];
 }
 #pragma mark - UIAlertView
 
