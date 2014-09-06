@@ -50,6 +50,7 @@
 @property(nonatomic,strong) UIButton *hiddenBtn;
 @property(nonatomic,strong) UITextView *textView;
 @property(nonatomic, strong)SpeechToTextModule *speechToTextObj;
+@property(nonatomic, strong) Reachability *reach;
 
 @end
 
@@ -117,9 +118,9 @@
                                              selector:@selector(reachabilityChanged:)
                                                  name:kReachabilityChangedNotification
                                                object:nil];
-    Reachability *reach = [Reachability reachabilityForInternetConnection];
-    [reach startNotifier];
-     [self updateInterfaceWithReachability:reach];
+     _reach= [Reachability reachabilityForInternetConnection];
+    [_reach startNotifier];
+     [self updateInterfaceWithReachability:_reach];
     fakeTextField = [[UITextField alloc] initWithFrame:CGRectZero];
     [fakeTextField setHidden:NO];
     [self.view addSubview:fakeTextField];
@@ -206,12 +207,8 @@
         AGSLocalTiledLayer *localTileLayer = [AGSLocalTiledLayer localTiledLayerWithName:fileName];
         self.mapView.maxEnvelope = [AGSEnvelope envelopeWithXmin:localTileLayer.fullEnvelope.xmin ymin:localTileLayer.fullEnvelope.ymin xmax:localTileLayer.fullEnvelope.xmax ymax:localTileLayer.fullEnvelope.ymax spatialReference:localTileLayer.spatialReference];
         if(localTileLayer != nil){
-            for(AGSTiledLayer *layer in self.mapView.mapLayers){
-                [self.mapView removeMapLayerWithName:layer.name];
-            }
-            self.mapView.layerDelegate = nil;
-            self.mapView.calloutDelegate=nil;
-            [self.mapView addMapLayer:localTileLayer withName:name];
+            [self.mapView reset];
+            [self.mapView insertMapLayer:localTileLayer withName:name atIndex:0];
             [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
             [self.mapView zoomIn:YES];
             self.mapView.layerDelegate = self;
@@ -219,6 +216,9 @@
             // Do any additional setup after loading the view from its nib.
             self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
             [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
+            if(self.sketchLayer){
+                [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
+            }
         }
     }else{
         [self.mapView removeMapLayerWithName:name];
@@ -229,6 +229,7 @@
     NSString *fileName = [notification.userInfo objectForKey:@"name"];
     NSString *name = [fileName stringByDeletingPathExtension];
     [self.mapView removeMapLayerWithName:name];
+    [self updateInterfaceWithReachability:_reach];
 }
 
 - (BOOL)hasAddLocalLayer:(NSString *)name{
@@ -255,35 +256,36 @@
 
 
 - (void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item{
-    [_toolView removeFromSuperview];
-    self.sketchLayer = nil;
-    self.sketchLayer.geometry = nil;
-    self.mapView.touchDelegate = nil;
-    [self.mapView removeMapLayerWithName:@"sketchLayer"];
-    [self.mapView.callout removeFromSuperview];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"GeometryChanged" object:nil];
     switch (item.tag) {
         case 1001:
         {
-            if(self.mapView.gps.enabled){
-                self.nearSearchViewController.location = [self.mapView.gps.currentLocation locationMarsFromEarth];
-                [self.navigationController pushViewController:self.nearSearchViewController animated:YES];
-            }else{
-                UIAlertView *alert;
-                alert = [[UIAlertView alloc]
-                         initWithTitle:@"天地图宁波"
-                         message:@"周边查询需要你的位置信息,请开启GPS"
-                         delegate:nil cancelButtonTitle:nil
-                         otherButtonTitles:@"确定", nil];
-                [alert show];
-                return;
-            }
-            
+             if([_reach isReachable]){
+                 if(self.mapView.gps.enabled){
+                     self.nearSearchViewController.location = [self.mapView.gps.currentLocation locationMarsFromEarth];
+                     [self.navigationController pushViewController:self.nearSearchViewController animated:YES];
+                 }else{
+                     UIAlertView *alert;
+                     alert = [[UIAlertView alloc]
+                              initWithTitle:@"天地图宁波"
+                              message:@"周边查询需要你的位置信息,请开启GPS"
+                              delegate:nil cancelButtonTitle:nil
+                              otherButtonTitles:@"确定", nil];
+                     [alert show];
+                     return;
+                 }
+             }else{
+                 [self showMessageWithAlert:@"网络链接断开"];
+             }
         }
             break;
         case 1002:
         {
-            [self.navigationController pushViewController:self.lineServiceViewController animated:YES];
+            if([_reach isReachable]){
+                
+                [self.navigationController pushViewController:self.lineServiceViewController animated:YES];
+            }else{
+                [self showMessageWithAlert:@"网络链接断开"];
+            }
         }
             break;
         case 1003:
@@ -293,17 +295,29 @@
             break;
         case 1004:
         {
-            [self.mapView addSubview:self.toolView];
-            self.sketchLayer = [AGSSketchGraphicsLayer graphicsLayer];
-            self.sketchLayer.geometry = [[AGSMutablePolyline alloc] initWithSpatialReference:self.mapView.spatialReference];
-            [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
-            self.mapView.touchDelegate = self.sketchLayer;
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(respondToGeomChanged:) name:@"GeometryChanged" object:nil];
-            // Set the default measures and units
-            _distance = 0;
-            _area = 0;
-            _distanceUnit = AGSSRUnitKilometer;
-            _areaUnit = AGSAreaUnitsSquareKilometers;
+            if(_toolView){
+                [_toolView removeFromSuperview];
+                _toolView = nil;
+                self.sketchLayer = nil;
+                self.sketchLayer.geometry = nil;
+                self.mapView.touchDelegate = nil;
+                [self.mapView removeMapLayerWithName:@"sketchLayer"];
+                [self.mapView.callout removeFromSuperview];
+                [[NSNotificationCenter defaultCenter] removeObserver:self name:@"GeometryChanged" object:nil];
+            }else{
+                [self.mapView addSubview:self.toolView];
+                self.sketchLayer = [AGSSketchGraphicsLayer graphicsLayer];
+                self.sketchLayer.geometry = [[AGSMutablePolyline alloc] initWithSpatialReference:self.mapView.spatialReference];
+                [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
+                self.mapView.touchDelegate = self.sketchLayer;
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(respondToGeomChanged:) name:@"GeometryChanged" object:nil];
+                // Set the default measures and units
+                _distance = 0;
+                _area = 0;
+                _distanceUnit = AGSSRUnitKilometer;
+                _areaUnit = AGSAreaUnitsSquareKilometers;
+            }
+            
         }
             break;
             
@@ -472,10 +486,12 @@
 }
 
 - (void)addDownLoadManagerViewController{
-    NBDownLoadManagerViewController *down = [[NBDownLoadManagerViewController alloc] initWithNibName:@"NBDownLoadManagerViewController" bundle:nil];
-    down.layers = self.mapView.mapLayers;
-    down.segIndex = 1;
-    [self.navigationController pushViewController:down animated:YES];
+    if(self.view.window && [self.navigationController.topViewController isKindOfClass:[NBMapViewController class]]){
+        NBDownLoadManagerViewController *down = [[NBDownLoadManagerViewController alloc] initWithNibName:@"NBDownLoadManagerViewController" bundle:nil];
+        down.layers = self.mapView.mapLayers;
+        down.segIndex = 1;
+        [self.navigationController pushViewController:down animated:YES];
+    }    
 }
 #pragma mark - toolDelegate
 - (void)toolButtonClick:(int)buttonTag{
@@ -488,14 +504,14 @@
         case 101:
         {
             self.sketchLayer.geometry = [[AGSMutablePolyline alloc] initWithSpatialReference:self.mapView.spatialReference];
-            
+            self.mapView.touchDelegate = self.sketchLayer;
         }
             break;
             
         case 102:
         {
             self.sketchLayer.geometry = [[AGSMutablePolygon alloc] initWithSpatialReference:self.mapView.spatialReference];
-            
+            self.mapView.touchDelegate = self.sketchLayer;
         }
             break;
             
@@ -509,6 +525,7 @@
         case 104:
         {
             self.sketchLayer.geometry = [[AGSMutablePoint alloc] initWithSpatialReference:self.mapView.spatialReference];
+            self.mapView.touchDelegate = self.sketchLayer;
         }
             break;
         case 105:
@@ -609,32 +626,33 @@
 - (void) updateInterfaceWithReachability: (Reachability*) curReach{
     if([curReach isReachable])
     {
-        if([curReach isReachableViaWiFi]){
-            for(AGSTiledLayer *layer in self.mapView.mapLayers){
-                [self.mapView removeMapLayerWithName:layer.name];
+        if(![curReach isReachableViaWiFi]){
+           [self showMessageWithAlert:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用功能"];
+        }
+        if(self.mapView.mapLayers.count > 0){
+            if([[self.mapView.mapLayers objectAtIndex:0] isKindOfClass:[AGSLocalTiledLayer class]]){
+                return;
             }
-            self.mapView.layerDelegate = nil;
-            self.mapView.calloutDelegate=nil;
-            [self addTileLayer];
-            [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
-            
-            self.mapView.layerDelegate = self;
-            self.mapView.calloutDelegate=self;
-            // Do any additional setup after loading the view from its nib.
-            self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
-            [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
-            return;
-        }else{
-            [self showMessageWithAlert:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用功能"];
+        }
+        [self.mapView reset];
+        [self addTileLayer];
+        [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
+        
+        self.mapView.layerDelegate = self;
+        self.mapView.calloutDelegate=self;
+        // Do any additional setup after loading the view from its nib.
+        self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
+        [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
+        if(self.sketchLayer){
+            [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
         }
         
     }
     else
     {
         [self showMessageWithAlert:@"网络链接断开"];
-       
+        [self performSelector:@selector(addDownLoadManagerViewController) withObject:nil afterDelay:2.0f];
     }
-     [self performSelector:@selector(addDownLoadManagerViewController) withObject:nil afterDelay:2.0f];
 }
 #pragma mark - UIAlertView
 
@@ -687,7 +705,6 @@
     }else if ([sketchGeometry isKindOfClass:[AGSMutablePoint class]]){
         [self errorRecovery];
     }
-   
 }
 
 - (void)updateDistance:(AGSSRUnit)unit {
@@ -751,6 +768,7 @@
 #pragma mark - AGSMapViewCalloutDelegate
 
 - (BOOL)mapView:(AGSMapView *)mapView shouldShowCalloutForGraphic:(AGSGraphic *)graphic{
+    self.mapView.touchDelegate = nil;
     if([[graphic.attributes objectForKey:@"object"] isKindOfClass:[NBSearch class]]){
         NBSearch *detail = (NBSearch *)[graphic.attributes objectForKey:@"object"];
         self.mapView.callout.customView = nil;
@@ -765,7 +783,7 @@
     return YES;
 }
 - (void)mapView:(AGSMapView *)mapView didClickCalloutAccessoryButtonForGraphic:(AGSGraphic *)graphic{
-    
+    self.mapView.touchDelegate = nil;
     if([[graphic.attributes objectForKey:@"object"] isKindOfClass:[NBSearch class]]){
         NBSearchDetailViewController *detailViewController = [[NBSearchDetailViewController alloc] initWithNibName:@"NBSearchDetailViewController" bundle:nil];
         detailViewController.detail = [graphic.attributes objectForKey:@"object"];
