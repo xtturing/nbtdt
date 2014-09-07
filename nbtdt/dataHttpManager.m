@@ -88,14 +88,42 @@ static dataHttpManager * instance=nil;
 	}
 }
 #pragma mark - Http Operate
+
+-(void)letDoHttpTypeQuery{
+    NSURL  *url = [NSURL URLWithString:HTTP_NBQUERY];
+    ASIHTTPRequest *request = [[ASIHTTPRequest alloc] initWithURL:url];
+    NSLog(@"url=%@",url);
+    [request setTimeOutSeconds:TIMEOUT];
+    [request setDefaultResponseEncoding:NSUTF8StringEncoding];
+    [request setResponseEncoding:NSUTF8StringEncoding];
+    [self setGetUserInfo:request withRequestType:AAGetHttpType];
+    [_requestQueue addOperation:request];
+}
+
 //获取当前区域列表
 -(void)letDoSearchWithQuery:(NSString *)query region:(NSString *)region  searchType:(int)type  pageSize:(int)size pageNum:(int)num{
     NSString *q = [NSString stringWithFormat:@"%@",query];
     NSString *r = [NSString stringWithFormat:@"%@",region];
     NSString *s = [NSString stringWithFormat:@"%d",size];
     NSString *n = [NSString stringWithFormat:@"%d",num];
-    NSMutableDictionary     *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:  q, @"query", r,  @"region",s,  @"page_size",n,  @"page_num",@"1",  @"scope",@"yMMBb6l8GBeG6GcHjnNuHVMy",  @"ak",@"json", @"output",nil];
-    NSString *baseUrl =[NSString  stringWithFormat:@"%@",HTTP_URL];
+    NSMutableDictionary     *params = nil;
+    NSString *baseUrl = nil;
+    if(_type == 2){
+        params = [NSMutableDictionary dictionaryWithObjectsAndKeys:  q, @"query", r,  @"region",s,  @"page_size",n,  @"page_num",@"1",  @"scope",@"1", @"paramType",nil];
+        if(_url.length > 0 && [_url hasPrefix:@"http:"]){
+            baseUrl =_url;
+        }else{
+            baseUrl =[NSString  stringWithFormat:@"%@",HTTP_URL];
+        }
+    }else{
+        params = [NSMutableDictionary dictionaryWithObjectsAndKeys:  q, @"query", r,  @"region",s,  @"page_size",n,  @"page_num",@"1",  @"scope",@"yMMBb6l8GBeG6GcHjnNuHVMy",  @"ak",@"json", @"output",nil];
+        if(_url.length > 0 && [_url hasPrefix:@"http:"]){
+            baseUrl =_url;
+        }else{
+            baseUrl =[NSString  stringWithFormat:@"%@",HTTP_URL];
+        }
+    }
+    
     NSURL  *url = [self generateURL:baseUrl params:params];
     ASIHTTPRequest *request = [[ASIHTTPRequest alloc] initWithURL:url];
     NSLog(@"url=%@",url);
@@ -111,8 +139,23 @@ static dataHttpManager * instance=nil;
     NSString *r = [NSString stringWithFormat:@"%d",scope];
     NSString *s = [NSString stringWithFormat:@"%d",size];
     NSString *n = [NSString stringWithFormat:@"%d",num];
-    NSMutableDictionary     *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:  query, @"query",location,  @"location",s,  @"page_size",n,  @"page_num",r,  @"scope",q,  @"radius",@"yMMBb6l8GBeG6GcHjnNuHVMy",  @"ak",@"json", @"output",nil];
-    NSString *baseUrl =[NSString  stringWithFormat:@"%@",HTTP_URL];
+    NSMutableDictionary     *params = nil;
+    NSString *baseUrl = nil;
+    if(_type == 2){
+        params = [NSMutableDictionary dictionaryWithObjectsAndKeys:  query, @"query",location,  @"location",s,  @"page_size",n,  @"page_num",r,  @"scope",q,  @"radius",@"3",  @"paramType",nil];
+        if(_url.length > 0 && [_url hasPrefix:@"http:"]){
+            baseUrl =_url;
+        }else{
+            baseUrl =[NSString  stringWithFormat:@"%@",HTTP_URL];
+        }
+    }else{
+        params = [NSMutableDictionary dictionaryWithObjectsAndKeys:  query, @"query",location,  @"location",s,  @"page_size",n,  @"page_num",r,  @"scope",q,  @"radius",@"yMMBb6l8GBeG6GcHjnNuHVMy",  @"ak",@"json", @"output",nil];
+        if(_url.length > 0 && [_url hasPrefix:@"http:"]){
+            baseUrl =_url;
+        }else{
+            baseUrl =[NSString  stringWithFormat:@"%@",HTTP_URL];
+        }
+    }
     NSURL  *url = [self generateURL:baseUrl params:params];
     ASIHTTPRequest *request = [[ASIHTTPRequest alloc] initWithURL:url];
     [request setTimeOutSeconds:TIMEOUT];
@@ -349,6 +392,11 @@ static dataHttpManager * instance=nil;
         if ([_delegate respondsToSelector:@selector(didgetTpkList:)]) {
             [_delegate didgetTpkList:statuesArr];
         }
+    }
+    
+    if(requestType == AAGetHttpType){
+        _url = [userInfo getStringValueForKey:@"url" defaultValue:@""];
+        _type = [[userInfo getStringValueForKey:@"type" defaultValue:@""] intValue];
     }
     //继续添加
     

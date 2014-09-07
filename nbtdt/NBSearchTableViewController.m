@@ -12,7 +12,7 @@
 #import "SVProgressHUD.h"
 #import "NBSearchDetailViewController.h"
 
-#define REGION @"无锡"
+#define REGION @"宁波"
 #define RADIUS 3000
 #define PAGESIZE 10
 #define PAGENUM  0

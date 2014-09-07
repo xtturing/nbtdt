@@ -17,6 +17,7 @@
 #define HTTP_ERRORURL         @"http://60.190.2.120:10087/mobile/new/"
 #define HTTP_SEARCH           @"http://60.190.2.120:10087/baiduQuery"
 #define HTTP_DOWNLOAD         @"http://www.nbmap.gov.cn/tpkService/"
+#define HTTP_NBQUERY          @"http://60.190.2.120:10087/nbQuery"
 #define REQUEST_TYPE          @"requestType"
 
 typedef enum {
@@ -26,7 +27,7 @@ typedef enum {
     AAGetLineSearch,
     AAGetBusSearch,
     AAGetTpkList,
-    
+    AAGetHttpType,
     //继续添加
     
 }DataRequestType;
@@ -63,6 +64,8 @@ typedef enum {
 @interface dataHttpManager : NSObject
 
 @property (nonatomic,retain) ASINetworkQueue *requestQueue;
+@property (nonatomic,strong) NSString *url;
+@property (nonatomic,assign) int type;
 @property (nonatomic,assign) id<dataHttpDelegate> delegate;
 +(dataHttpManager*)getInstance;
 - (id)initWithDelegate;
@@ -92,5 +95,7 @@ typedef enum {
 //
 
 -(void)letDoTpkList;
+
+-(void)letDoHttpTypeQuery;
 //继续添加
 @end

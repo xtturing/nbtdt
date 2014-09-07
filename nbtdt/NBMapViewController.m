@@ -20,6 +20,8 @@
 #import "NBSearchDetailViewController.h"
 #import "NBDownLoadManagerViewController.h"
 #import "dataHttpManager.h"
+#import "SBJsonParser.h"
+#import "NSStringAdditions.h"
 
 //contants for data layers
 #define kTiledNB @"http://60.190.2.120/wmts/nbmapall?service=WMTS&request=GetTile&version=1.0.0&layer=0&style=default&tileMatrixSet=nbmap&format=image/png&TILEMATRIX=%d&TILEROW=%d&TILECOL=%d"
@@ -60,6 +62,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
+        [[dataHttpManager getInstance] letDoHttpTypeQuery];
         //导航条的搜索条
         _searchBar = [[UISearchBar alloc]initWithFrame:CGRectMake(0.0f,0.0f,240.0f,44.0f)];
         _searchBar.delegate = self;
@@ -138,6 +141,8 @@
     }
     self.bar.delegate = self;
     
+    self.mapView.layerDelegate = self;
+    self.mapView.calloutDelegate=self;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gpsPointInMap:) name:@"SearchDetailGPSPoint" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(searchPointsInMap:) name:@"searchPointsInMap" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addLocalTileLayer:) name:@"addLocalTileLayer" object:nil];
@@ -211,8 +216,6 @@
             [self.mapView insertMapLayer:localTileLayer withName:name atIndex:0];
             [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
             [self.mapView zoomIn:YES];
-            self.mapView.layerDelegate = self;
-            self.mapView.calloutDelegate=self;
             // Do any additional setup after loading the view from its nib.
             self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
             [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
@@ -271,6 +274,7 @@
                               delegate:nil cancelButtonTitle:nil
                               otherButtonTitles:@"确定", nil];
                      [alert show];
+                     [self.mapView.gps start];
                      return;
                  }
              }else{
@@ -340,13 +344,7 @@
     if(self.mapView.gps.enabled){
         [self.mapView centerAtPoint:self.mapView.gps.currentPoint animated:YES];
     }else {
-        UIAlertView *alert;
-        alert = [[UIAlertView alloc]
-                 initWithTitle:@"天地图宁波"
-                 message:@"请开启GPS使用你的位置信息"
-                 delegate:nil cancelButtonTitle:nil
-                 otherButtonTitles:@"确定", nil];
-        [alert show];
+        [self.mapView.gps start];
         return;
     }
 }
@@ -594,6 +592,23 @@
 {
     NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSLog(@"responseString: %@",responseString);
+    SBJsonParser *parser = [[SBJsonParser alloc] init];
+    id  returnObject = [parser objectWithString:responseString];
+    NSDictionary *userInfo = nil;
+    if ([returnObject isKindOfClass:[NSDictionary class]]) {
+        userInfo = (NSDictionary*)returnObject;
+    }
+    NSArray *arr= [userInfo objectForKey:@"hypotheses"];
+    if(arr.count > 0){
+        NSDictionary *item =[arr objectAtIndex:0];
+        NSString *text = [item getStringValueForKey:@"utterance" defaultValue:@""];
+        if(text.length > 0){
+            NBSearchTableViewController *searchViewController = [[NBSearchTableViewController alloc] init];
+            searchViewController.searchText = text;
+            searchViewController.searchType = AFKeySearch;
+            [self.navigationController pushViewController:searchViewController animated:YES];
+        }
+    }
     return YES;
 }
 - (void)showSineWaveView:(SineWaveViewController *)view
@@ -638,8 +653,6 @@
         [self addTileLayer];
         [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
         
-        self.mapView.layerDelegate = self;
-        self.mapView.calloutDelegate=self;
         // Do any additional setup after loading the view from its nib.
         self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
         [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];

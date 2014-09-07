@@ -210,7 +210,7 @@
     }
     for(NSData *data in array){
         NBSearch *detail = [NSKeyedUnarchiver unarchiveObjectWithData:data ];
-        if([detail.uid isEqualToString:_detail.uid] ){
+        if([detail.uid isEqualToString:_detail.uid] && [detail.name isEqualToString:_detail.name] ){
             return YES;
         }
     }
