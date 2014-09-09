@@ -14,7 +14,7 @@
 -(id) init
 {
 	[super init];
- 	_spatialReference = [[AGSSpatialReference alloc] initWithWKID:4326 WKT:nil];
+ 	_spatialReference = [[AGSSpatialReference alloc] initWithWKID:4490 WKT:nil];
 	_fullEnvelope = [[AGSEnvelope alloc] initWithXmin:-180
                                                      ymin:-90
                                                      xmax:180
