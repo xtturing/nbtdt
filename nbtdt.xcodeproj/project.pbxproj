@@ -52,7 +52,6 @@
 		41BBA23A19A78B3300C0A328 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41BBA0F119A78B3200C0A328 /* Images.xcassets */; };
 		41BBA23B19A78B3300C0A328 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA0F619A78B3200C0A328 /* JSONKit.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		41BBA23C19A78B3300C0A328 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA0F719A78B3200C0A328 /* main.m */; };
-		41BBA23D19A78B3300C0A328 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA0F919A78B3200C0A328 /* MBProgressHUD.m */; };
 		41BBA23F19A78B3300C0A328 /* NBAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA0FD19A78B3200C0A328 /* NBAppDelegate.m */; };
 		41BBA24019A78B3300C0A328 /* NBDownLoadManagerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA0FF19A78B3200C0A328 /* NBDownLoadManagerViewController.m */; };
 		41BBA24119A78B3300C0A328 /* NBDownLoadManagerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41BBA10019A78B3200C0A328 /* NBDownLoadManagerViewController.xib */; };
@@ -233,8 +232,6 @@
 		41BBA0F519A78B3200C0A328 /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
 		41BBA0F619A78B3200C0A328 /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
 		41BBA0F719A78B3200C0A328 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		41BBA0F819A78B3200C0A328 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		41BBA0F919A78B3200C0A328 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
 		41BBA0FC19A78B3200C0A328 /* NBAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBAppDelegate.h; sourceTree = "<group>"; };
 		41BBA0FD19A78B3200C0A328 /* NBAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBAppDelegate.m; sourceTree = "<group>"; };
 		41BBA0FE19A78B3200C0A328 /* NBDownLoadManagerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBDownLoadManagerViewController.h; sourceTree = "<group>"; };
@@ -475,15 +472,6 @@
 			name = JsonKit;
 			sourceTree = "<group>";
 		};
-		4148237419AA2FFF00442FA7 /* MBProgressHUD */ = {
-			isa = PBXGroup;
-			children = (
-				41BBA0F819A78B3200C0A328 /* MBProgressHUD.h */,
-				41BBA0F919A78B3200C0A328 /* MBProgressHUD.m */,
-			);
-			name = MBProgressHUD;
-			sourceTree = "<group>";
-		};
 		4148237519AA301100442FA7 /* KIT */ = {
 			isa = PBXGroup;
 			children = (
@@ -496,7 +484,6 @@
 				4148237019AA2FA100442FA7 /* GoodleMapLayer */,
 				41BBA05119A78B3200C0A328 /* ASIHTTPRequest */,
 				4148237319AA2FE900442FA7 /* JsonKit */,
-				4148237419AA2FFF00442FA7 /* MBProgressHUD */,
 			);
 			name = KIT;
 			sourceTree = "<group>";
@@ -955,7 +942,6 @@
 				41BBA1B219A78B3300C0A328 /* AFHTTPClient.m in Sources */,
 				41BBA1C119A78B3300C0A328 /* ASIFormDataRequest.m in Sources */,
 				41BBA24D19A78B3300C0A328 /* NBRoute.m in Sources */,
-				41BBA23D19A78B3300C0A328 /* MBProgressHUD.m in Sources */,
 				41BBA1BA19A78B3300C0A328 /* UIImageView+AFNetworking.m in Sources */,
 				41BBA1B619A78B3300C0A328 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				41BBA24619A78B3300C0A328 /* NBLine.m in Sources */,
