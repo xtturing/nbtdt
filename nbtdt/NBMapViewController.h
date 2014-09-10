@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "AGSGoogleMapLayer.h"
-
-@interface NBMapViewController : UIViewController<UITabBarDelegate,AGSMapViewLayerDelegate,AGSMapViewCalloutDelegate,UITextViewDelegate>
+#import "iflyMSC/IFlyRecognizerViewDelegate.h"
+@class IFlyRecognizerView;
+@interface NBMapViewController : UIViewController<UITabBarDelegate,AGSMapViewLayerDelegate,AGSMapViewCalloutDelegate,UITextViewDelegate,IFlyRecognizerViewDelegate>
 
 @property (nonatomic, strong) IBOutlet UITabBar *bar;
 @property (nonatomic, strong) IBOutlet AGSMapView *mapView;
@@ -18,6 +19,7 @@
 @property (nonatomic, strong) AGSDynamicMapServiceLayer *dynamicMapLayer;
 @property (nonatomic, strong) AGSSketchGraphicsLayer *sketchLayer;
 @property (nonatomic, strong) AGSGraphicsLayer *graphicsLayer;
+@property (nonatomic,strong) IFlyRecognizerView *iflyRecognizerView;
 
 -(IBAction)gps:(id)sender;
 -(IBAction)list:(id)sender;

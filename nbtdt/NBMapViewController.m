@@ -12,7 +12,6 @@
 #import "NBFavoritesViewController.h"
 #import "NBToolView.h"
 #import "NBDownLoadViewController.h"
-#import "SpeechToTextModule.h"
 #import "Reachability.h"
 #import "NBSearch.h"
 #import "NBSearchTableViewController.h"
@@ -22,6 +21,9 @@
 #import "dataHttpManager.h"
 #import "SBJsonParser.h"
 #import "NSStringAdditions.h"
+#import "iflyMSC/IFlySpeechConstant.h"
+#import "iflyMSC/IFlySpeechUtility.h"
+#import "iflyMSC/IFlyRecognizerView.h"
 
 //contants for data layers
 #define kTiledNB @"http://60.190.2.120/wmts/nbmapall?service=WMTS&request=GetTile&version=1.0.0&layer=0&style=default&tileMatrixSet=nbmap&format=image/png&TILEMATRIX=%d&TILEROW=%d&TILECOL=%d"
@@ -34,7 +36,7 @@
 
 #define kDynamicNB @"http://www.nbmap.gov.cn/ArcGIS/rest/services/nbdxx/MapServer"
 
-@interface NBMapViewController ()<toolDelegate,UISearchBarDelegate,AGSMapViewLayerDelegate,SpeechToTextModuleDelegate,AGSInfoTemplateDelegate,dataHttpDelegate>{
+@interface NBMapViewController ()<toolDelegate,UISearchBarDelegate,AGSMapViewLayerDelegate,AGSInfoTemplateDelegate,dataHttpDelegate>{
     UITextField *fakeTextField;
     double _distance;
     double _area;
@@ -42,6 +44,7 @@
     AGSAreaUnits _areaUnit;
     AGSPoint *errorPoint;
     int errorScale;
+    BOOL isFirstWordToSearch;
 }
 
 @property(nonatomic,strong) NBNearSearchViewController *nearSearchViewController;
@@ -51,7 +54,6 @@
 @property(nonatomic,strong) UISearchBar *searchBar;
 @property(nonatomic,strong) UIButton *hiddenBtn;
 @property(nonatomic,strong) UITextView *textView;
-@property(nonatomic, strong)SpeechToTextModule *speechToTextObj;
 @property(nonatomic, strong) Reachability *reach;
 
 @end
@@ -127,8 +129,6 @@
     fakeTextField = [[UITextField alloc] initWithFrame:CGRectZero];
     [fakeTextField setHidden:NO];
     [self.view addSubview:fakeTextField];
-    self.speechToTextObj = [[SpeechToTextModule alloc] initWithCustomDisplay:@"SineWaveViewController"];
-    [self.speechToTextObj setDelegate:self];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
@@ -147,6 +147,16 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(searchPointsInMap:) name:@"searchPointsInMap" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addLocalTileLayer:) name:@"addLocalTileLayer" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(removeLocalTileLayer:) name:@"removeLocalTileLayer" object:nil];
+    
+    self.iflyRecognizerView= [[IFlyRecognizerView alloc] initWithCenter:self.view.center];
+    _iflyRecognizerView.delegate = self;
+    
+    [_iflyRecognizerView setParameter: @"iat" forKey:[IFlySpeechConstant IFLY_DOMAIN]];
+    [_iflyRecognizerView setParameter: @"asr.pcm" forKey:[IFlySpeechConstant ASR_AUDIO_PATH]];
+    
+    // | result_type   | 返回结果的数据格式，可设置为json，xml，plain，默认为json。
+    [_iflyRecognizerView setParameter:@"plain" forKey:[IFlySpeechConstant RESULT_TYPE]];
+    isFirstWordToSearch = YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -165,6 +175,7 @@
 }
 
 - (void)dealloc{
+    _iflyRecognizerView.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.mapView = nil;
 }
@@ -584,52 +595,40 @@
     return _hiddenBtn;
 }
 
-#pragma  mark -speechToText
+#pragma  mark - speechToText
 
 -(void)speechToText{
-    [self.speechToTextObj beginRecording];
+    _searchBar.text = @"";
+    isFirstWordToSearch = YES;
+    [_searchBar resignFirstResponder];
+    [_iflyRecognizerView start];
 }
 
-#pragma mark - SpeechToTextModule Delegate -
-- (BOOL)didReceiveVoiceResponse:(NSData *)data
+#pragma mark IFlyRecognizerViewDelegate
+/** 识别结果回调方法
+ @param resultArray 结果列表
+ @param isLast YES 表示最后一个，NO表示后面还有结果
+ */
+- (void)onResult:(NSArray *)resultArray isLast:(BOOL)isLast
 {
-    NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"responseString: %@",responseString);
-    SBJsonParser *parser = [[SBJsonParser alloc] init];
-    id  returnObject = [parser objectWithString:responseString];
-    NSDictionary *userInfo = nil;
-    if ([returnObject isKindOfClass:[NSDictionary class]]) {
-        userInfo = (NSDictionary*)returnObject;
+    NSMutableString *result = [[NSMutableString alloc] init];
+    NSDictionary *dic = [resultArray objectAtIndex:0];
+    for (NSString *key in dic) {
+        [result appendFormat:@"%@",key];
     }
-    NSArray *arr= [userInfo objectForKey:@"hypotheses"];
-    if(arr.count > 0){
-        NSDictionary *item =[arr objectAtIndex:0];
-        NSString *text = [item getStringValueForKey:@"utterance" defaultValue:@""];
-        if(text.length > 0){
-            NBSearchTableViewController *searchViewController = [[NBSearchTableViewController alloc] init];
-            searchViewController.searchText = text;
-            searchViewController.searchType = AFKeySearch;
-            [self.navigationController pushViewController:searchViewController animated:YES];
-        }
+    if(isFirstWordToSearch && result.length > 0){
+        isFirstWordToSearch = NO;
+        _searchBar.text = [NSString stringWithFormat:@"%@",result];
+        [self performSelector:@selector(doSearch) withObject:nil afterDelay:1.0];
     }
-    return YES;
 }
-- (void)showSineWaveView:(SineWaveViewController *)view
+
+/** 识别结束回调方法
+ @param error 识别错误
+ */
+- (void)onError:(IFlySpeechError *)error
 {
-    [fakeTextField setInputView:view.view];
-    [fakeTextField becomeFirstResponder];
-}
-- (void)dismissSineWaveView:(SineWaveViewController *)view cancelled:(BOOL)wasCancelled
-{
-    [fakeTextField resignFirstResponder];
-}
-- (void)showLoadingView
-{
-    NSLog(@"show loadingView");
-}
-- (void)requestFailedWithError:(NSError *)error
-{
-    NSLog(@"error: %@",error);
+    NSLog(@"errorCode:%d",[error errorCode]);
 }
 
 #pragma mark -reachability
@@ -685,16 +684,18 @@
 - (void) searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
     [searchBar resignFirstResponder];
+    [self doSearch];
+    
+}
+
+- (void)doSearch{
     if(_searchBar.text.length>0){
         NBSearchTableViewController *searchViewController = [[NBSearchTableViewController alloc] init];
         searchViewController.searchText = _searchBar.text;
         searchViewController.searchType = AFKeySearch;
         [self.navigationController pushViewController:searchViewController animated:YES];
     }
-    
 }
-
-
 //cancel按钮点击时调用
 
 - (void) searchBarCancelButtonClicked:(UISearchBar *)searchBar

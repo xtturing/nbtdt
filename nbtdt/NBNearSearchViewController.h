@@ -7,10 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "iflyMSC/IFlyRecognizerViewDelegate.h"
+@class IFlyRecognizerView;
 
-@interface NBNearSearchViewController : UIViewController
+@interface NBNearSearchViewController : UIViewController<IFlyRecognizerViewDelegate>
 
 @property (nonatomic,strong) IBOutlet UIView *imageView;
 @property (nonatomic, strong) CLLocation *location;
+@property (nonatomic,strong) IFlyRecognizerView *iflyRecognizerView;
 
 @end
