@@ -353,7 +353,7 @@
 
 -(IBAction)gps:(id)sender{
     if(self.mapView.gps.enabled){
-        [self.mapView centerAtPoint:self.mapView.gps.currentPoint animated:YES];
+        [self zooMapToLevel:17 withCenter:self.mapView.gps.currentPoint];
     }else {
         [self.mapView.gps start];
         return;
