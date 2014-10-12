@@ -192,11 +192,7 @@
  
 }
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath{
-    if([self.navigationItem.rightBarButtonItem.title isEqualToString:@"完成"]){
-        return YES;
-    }else{
-        return NO;
-    }
+    return YES;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath{

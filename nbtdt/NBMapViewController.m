@@ -157,6 +157,7 @@
     // | result_type   | 返回结果的数据格式，可设置为json，xml，plain，默认为json。
     [_iflyRecognizerView setParameter:@"plain" forKey:[IFlySpeechConstant RESULT_TYPE]];
     isFirstWordToSearch = YES;
+    [self.mapView.gps start];
 }
 
 - (void)didReceiveMemoryWarning
@@ -167,6 +168,7 @@
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
+    [self performSelector:@selector(gps) withObject:nil afterDelay:2.0f];
     [dataHttpManager getInstance].delegate = self;
 }
 
@@ -225,11 +227,11 @@
         if(localTileLayer != nil){
 //            [self.mapView reset];
             [self.mapView addMapLayer:localTileLayer withName:name];
-            [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
             [self.mapView zoomIn:YES];
             // Do any additional setup after loading the view from its nib.
             self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
             [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
+            self.sketchLayer = [AGSSketchGraphicsLayer graphicsLayer];
             if(self.sketchLayer){
                 [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
             }
@@ -356,6 +358,15 @@
         [self zooMapToLevel:17 withCenter:self.mapView.gps.currentPoint];
     }else {
         [self.mapView.gps start];
+        return;
+    }
+}
+- (void)gps{
+    if(self.mapView.gps.enabled && self.mapView.gps.currentPoint){
+        [self zooMapToLevel:13 withCenter:self.mapView.gps.currentPoint];
+    }else {
+        [self.mapView.gps start];
+         [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
         return;
     }
 }
@@ -653,11 +664,11 @@
 //        }
 //        [self.mapView reset];
         [self addTileLayer];
-        [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
         
         // Do any additional setup after loading the view from its nib.
         self.graphicsLayer = [AGSGraphicsLayer graphicsLayer];
         [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
+        self.sketchLayer = [AGSSketchGraphicsLayer graphicsLayer];
         if(self.sketchLayer){
             [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
         }
