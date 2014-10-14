@@ -166,25 +166,20 @@ static dataHttpManager * instance=nil;
     [_requestQueue addOperation:request];
 }
 - (void)letDoPostErrorWithMessage:(NSString *)message plottingScale:(NSString *)plottingScale point:(NSString *)point{
-    NSString *m = [NSString stringWithFormat:@"%@",message];
-    NSString *s = [NSString stringWithFormat:@"%@",plottingScale];
-    NSString *p = [NSString stringWithFormat:@"%@",point];
     NSString *baseUrl =[NSString  stringWithFormat:@"%@",HTTP_ERRORURL];
     NSURL  *url = [NSURL URLWithString:baseUrl];
-    ASIFormDataRequest *request = [ASIFormDataRequest requestWithURL:url];
-    [request setPostValue:@"admin" forKey:@"errorCorrector"];
-    [request setPostValue:s forKey:@"plottingScale"];
-    [request setPostValue:m forKey:@"errorCorrectInfo"];
-    [request setPostValue:@"0" forKey:@"errorcoreectObject"];
-    [request setPostValue:@"" forKey:@"telnum"];
-    [request setPostValue:p forKey:@"point"];
-    [request setPostValue:@"1" forKey:@"region"];
+    NSString *sendStr = [NSString stringWithFormat:@"{\"errorCorrector\":\"admin\",\"plottingScale\":%@,\"errorCorrectInfo\":\"%@\",\"errorcoreectObject\":0,\"telnum\":\"\",\"point\":\"%@\",\"region\":\"1\"}",plottingScale,message,point];
+    ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
+    [request appendPostData:[sendStr dataUsingEncoding:NSUTF8StringEncoding]];
+    [request setRequestMethod:@"POST"];
+    [request addRequestHeader: @"Content-Type" value: @"application/json"];
     [request setTimeOutSeconds:TIMEOUT];
-    [request setDelegate:self];
-    [request setDefaultResponseEncoding:NSUTF8StringEncoding];
     [request setResponseEncoding:NSUTF8StringEncoding];
+    [request setDefaultResponseEncoding:NSUTF8StringEncoding];
+    [request setDelegate:self];
     NSLog(@"url=%@",url);
-    [self setPostUserInfo:request withRequestType:AAPostError];
+    [self setGetUserInfo:request withRequestType:AAPostError];
+    [request setDelegate:self];
     [request startAsynchronous];
 }
 
