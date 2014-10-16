@@ -158,6 +158,8 @@
     [_iflyRecognizerView setParameter:@"plain" forKey:[IFlySpeechConstant RESULT_TYPE]];
     isFirstWordToSearch = YES;
     [self.mapView.gps start];
+    
+    [self performSelector:@selector(autoGPS) withObject:nil afterDelay:2.0f];
 }
 
 - (void)didReceiveMemoryWarning
@@ -168,7 +170,6 @@
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    [self performSelector:@selector(gps) withObject:nil afterDelay:2.0f];
     [dataHttpManager getInstance].delegate = self;
 }
 
@@ -361,7 +362,7 @@
         return;
     }
 }
-- (void)gps{
+- (void)autoGPS{
     if(self.mapView.gps.enabled && self.mapView.gps.currentPoint){
         [self zooMapToLevel:13 withCenter:self.mapView.gps.currentPoint];
     }else {
