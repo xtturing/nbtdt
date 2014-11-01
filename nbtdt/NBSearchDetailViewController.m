@@ -126,7 +126,7 @@
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(20, 20, 100, 20)];
         label.text = @"在周边找";
         [_imageViewCell addSubview:label];
-        for (NSInteger i = 0;i<16;i++)
+        for (NSInteger i = 0;i<15;i++)
         {
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
             btn.backgroundColor = [UIColor clearColor];

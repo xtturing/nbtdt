@@ -75,7 +75,7 @@
         UIBarButtonItem *right = [[UIBarButtonItem alloc] initWithCustomView:voiceBtn];
         self.navigationItem.rightBarButtonItem = right;
         
-        for (NSInteger i = 0;i<16;i++)
+        for (NSInteger i = 0;i<15;i++)
         {
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
             btn.backgroundColor = [UIColor clearColor];

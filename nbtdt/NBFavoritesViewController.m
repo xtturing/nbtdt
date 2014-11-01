@@ -44,8 +44,8 @@
     segment.selectedSegmentIndex = 0;
     [segment addTarget:self action:@selector(segmentAction:)forControlEvents:UIControlEventValueChanged];
     
-    UIBarButtonItem *right = [[UIBarButtonItem alloc]  initWithTitle:@"编辑" style:UIBarButtonItemStylePlain target:self action:@selector(editAction)];
-    self.navigationItem.rightBarButtonItem = right;
+//    UIBarButtonItem *right = [[UIBarButtonItem alloc]  initWithTitle:@"编辑" style:UIBarButtonItemStylePlain target:self action:@selector(editAction)];
+//    self.navigationItem.rightBarButtonItem = right;
     // Do any additional setup after loading the view from its nib.
 }
 

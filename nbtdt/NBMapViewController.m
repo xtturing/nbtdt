@@ -95,7 +95,7 @@
             if([cc isKindOfClass:[UIButton class]]){
                 UIButton *btn = (UIButton *)cc;
                 [btn setTitle:@"取消"  forState:UIControlStateNormal];
-            }  
+            }
         }
         //将搜索条放在一个UIView上
         UIView *searchView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, CGRectGetWidth(self.view.frame), 44)];
@@ -112,7 +112,7 @@
         self.navigationItem.rightBarButtonItem = right;
     }
     return self;
-
+    
 }
 
 - (void)viewDidLoad
@@ -123,16 +123,16 @@
                                              selector:@selector(reachabilityChanged:)
                                                  name:kReachabilityChangedNotification
                                                object:nil];
-     _reach= [Reachability reachabilityForInternetConnection];
+    _reach= [Reachability reachabilityForInternetConnection];
     [_reach startNotifier];
-     [self updateInterfaceWithReachability:_reach];
+    [self updateInterfaceWithReachability:_reach];
     fakeTextField = [[UITextField alloc] initWithFrame:CGRectZero];
     [fakeTextField setHidden:NO];
     [self.view addSubview:fakeTextField];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-   
+    
     
     self.navigationItem.title = @"返回";
     
@@ -224,9 +224,9 @@
     NSString *extension = @"tpk";
     if(![self hasAddLocalLayer:name] && [[fileName pathExtension] isEqualToString:extension]){
         AGSLocalTiledLayer *localTileLayer = [AGSLocalTiledLayer localTiledLayerWithName:fileName];
-//        self.mapView.maxEnvelope = [AGSEnvelope envelopeWithXmin:localTileLayer.fullEnvelope.xmin ymin:localTileLayer.fullEnvelope.ymin xmax:localTileLayer.fullEnvelope.xmax ymax:localTileLayer.fullEnvelope.ymax spatialReference:localTileLayer.spatialReference];
+        //        self.mapView.maxEnvelope = [AGSEnvelope envelopeWithXmin:localTileLayer.fullEnvelope.xmin ymin:localTileLayer.fullEnvelope.ymin xmax:localTileLayer.fullEnvelope.xmax ymax:localTileLayer.fullEnvelope.ymax spatialReference:localTileLayer.spatialReference];
         if(localTileLayer != nil){
-//            [self.mapView reset];
+            //            [self.mapView reset];
             [self.mapView addMapLayer:localTileLayer withName:name];
             [self.mapView zoomIn:YES];
             // Do any additional setup after loading the view from its nib.
@@ -234,6 +234,11 @@
             [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
             self.sketchLayer = [AGSSketchGraphicsLayer graphicsLayer];
             if(self.sketchLayer){
+                
+                if([_mapView.mapLayerViews objectForKey:@"sketchLayer"])
+                {
+                    [_mapView removeMapLayerWithName:@"sketchLayer"];
+                }
                 [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
             }
         }
@@ -260,11 +265,12 @@
 
 - (void)zooMapToLevel:(int)level withCenter:(AGSPoint *)point{
     if(self.mapView.mapLayers.count > 0){
-        AGSTiledLayer *tileLayer = [self.mapView.mapLayers objectAtIndex:0];
-        if([tileLayer isKindOfClass:[AGSGoogleMapLayer class]]){
-            AGSGoogleMapLayer *layer = (AGSGoogleMapLayer *)tileLayer;
-            AGSLOD *lod = [layer.tileInfo.lods objectAtIndex:level];
-            [self.mapView zoomToResolution:lod.resolution withCenterPoint:point animated:YES];
+        for(AGSTiledLayer *tileLayer in self.mapView.mapLayers){
+            if([tileLayer isKindOfClass:[AGSGoogleMapLayer class]]){
+                AGSGoogleMapLayer *layer = (AGSGoogleMapLayer *)tileLayer;
+                AGSLOD *lod = [layer.tileInfo.lods objectAtIndex:level];
+                [self.mapView zoomToResolution:lod.resolution withCenterPoint:point animated:YES];
+            }
         }
     }
     
@@ -276,24 +282,24 @@
     switch (item.tag) {
         case 1001:
         {
-             if([_reach isReachable]){
-                 if(self.mapView.gps.enabled){
-                     self.nearSearchViewController.location = [self.mapView.gps.currentLocation locationMarsFromEarth];
-                     [self.navigationController pushViewController:self.nearSearchViewController animated:YES];
-                 }else{
-                     UIAlertView *alert;
-                     alert = [[UIAlertView alloc]
-                              initWithTitle:@"天地图宁波"
-                              message:@"周边查询需要你的位置信息,请开启GPS"
-                              delegate:nil cancelButtonTitle:nil
-                              otherButtonTitles:@"确定", nil];
-                     [alert show];
-                     [self.mapView.gps start];
-                     return;
-                 }
-             }else{
-                 [self showMessageWithAlert:@"网络链接断开"];
-             }
+            if([_reach isReachable]){
+                if(self.mapView.gps.enabled){
+                    self.nearSearchViewController.location = [self.mapView.gps.currentLocation locationMarsFromEarth];
+                    [self.navigationController pushViewController:self.nearSearchViewController animated:YES];
+                }else{
+                    UIAlertView *alert;
+                    alert = [[UIAlertView alloc]
+                             initWithTitle:@"天地图宁波"
+                             message:@"周边查询需要你的位置信息,请开启GPS"
+                             delegate:nil cancelButtonTitle:nil
+                             otherButtonTitles:@"确定", nil];
+                    [alert show];
+                    [self.mapView.gps start];
+                    return;
+                }
+            }else{
+                [self showMessageWithAlert:@"网络链接断开"];
+            }
         }
             break;
         case 1002:
@@ -326,6 +332,12 @@
                 [self.mapView addSubview:self.toolView];
                 self.sketchLayer = [AGSSketchGraphicsLayer graphicsLayer];
                 self.sketchLayer.geometry = [[AGSMutablePolyline alloc] initWithSpatialReference:self.mapView.spatialReference];
+                
+                if([_mapView.mapLayerViews objectForKey:@"sketchLayer"])
+                {
+                    [_mapView removeMapLayerWithName:@"sketchLayer"];
+                }
+                
                 [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
                 self.mapView.touchDelegate = self.sketchLayer;
                 [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(respondToGeomChanged:) name:@"GeometryChanged" object:nil];
@@ -367,7 +379,7 @@
         [self zooMapToLevel:13 withCenter:self.mapView.gps.currentPoint];
     }else {
         [self.mapView.gps start];
-         [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
+        [self zooMapToLevel:13 withCenter:[AGSPoint pointWithX:121.55629730245123 y:29.874820709509887 spatialReference:self.mapView.spatialReference]];
         return;
     }
 }
@@ -386,7 +398,7 @@
                  otherButtonTitles:@"确定", nil];
         [alert show];
     }
-
+    
 }
 -(IBAction)prev:(id)sender{
     
@@ -395,6 +407,16 @@
     
 }
 -(IBAction)changeMap:(id)sender{
+    if(_toolView){
+        [_toolView removeFromSuperview];
+        _toolView = nil;
+        self.sketchLayer = nil;
+        self.sketchLayer.geometry = nil;
+        self.mapView.touchDelegate = nil;
+        [self.mapView removeMapLayerWithName:@"sketchLayer"];
+        [self.mapView.callout removeFromSuperview];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:@"GeometryChanged" object:nil];
+    }
     AGSGoogleMapLayer *layer = [self.mapView.mapLayers objectAtIndex:0];
     if([layer.name isEqualToString:@"tiledLayer"]){
         [self addWMSLayer];
@@ -456,7 +478,7 @@
         AGSGraphic * pointgra= nil;
         AGSPoint *point =	[AGSPoint pointWithX:[[detail.location objectForKey:@"lng"] floatValue]  y: [[detail.location objectForKey:@"lat"] floatValue] spatialReference:nil];
         if(point.x == 0 || point.y == 0 ){
-            return;
+            continue;
         }
         NSArray *tipkey=[[NSArray alloc]initWithObjects:@"detail",@"title",@"object",nil];
         NSArray *tipvalue=[[NSArray alloc]initWithObjects:detail.address,detail.name,detail,nil];
@@ -468,7 +490,7 @@
         pointgra.symbol = dian;
         [self.graphicsLayer addGraphic:pointgra];
         [self.graphicsLayer dataChanged];
-        [self zooMapToLevel:10 withCenter:point];
+        [self zooMapToLevel:13 withCenter:point];
     }
 }
 
@@ -512,7 +534,7 @@
         down.layers = self.mapView.mapLayers;
         down.segIndex = 1;
         [self.navigationController pushViewController:down animated:YES];
-    }    
+    }
 }
 #pragma mark - toolDelegate
 - (void)toolButtonClick:(int)buttonTag{
@@ -526,6 +548,11 @@
         {
             self.sketchLayer.geometry = [[AGSMutablePolyline alloc] initWithSpatialReference:self.mapView.spatialReference];
             self.mapView.touchDelegate = self.sketchLayer;
+            
+            if([_mapView.mapLayerViews objectForKey:@"sketchLayer"])
+            {
+                [_mapView removeMapLayerWithName:@"sketchLayer"];
+            }
             [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
         }
             break;
@@ -534,6 +561,10 @@
         {
             self.sketchLayer.geometry = [[AGSMutablePolygon alloc] initWithSpatialReference:self.mapView.spatialReference];
             self.mapView.touchDelegate = self.sketchLayer;
+            if([_mapView.mapLayerViews objectForKey:@"sketchLayer"])
+            {
+                [_mapView removeMapLayerWithName:@"sketchLayer"];
+            }
             [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
         }
             break;
@@ -549,6 +580,11 @@
         {
             self.sketchLayer.geometry = [[AGSMutablePoint alloc] initWithSpatialReference:self.mapView.spatialReference];
             self.mapView.touchDelegate = self.sketchLayer;
+            
+            if([_mapView.mapLayerViews objectForKey:@"sketchLayer"])
+            {
+                [_mapView removeMapLayerWithName:@"sketchLayer"];
+            }
             [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
         }
             break;
@@ -567,7 +603,7 @@
 
 -(void) mapViewDidLoad:(AGSMapView*)mapView {
     // comment to disable the GPS on start up
-   [self.mapView.gps start];
+    [self.mapView.gps start];
     
 }
 
@@ -589,13 +625,13 @@
 }
 
 - (void)keyboardWillShow:(NSNotification *)notification {
-     [self.view addSubview:self.hiddenBtn];
+    [self.view addSubview:self.hiddenBtn];
 }
 
 
 - (void)keyboardWillHide:(NSNotification *)notification {
     [_hiddenBtn removeFromSuperview];
-   
+    
 }
 
 -(UIButton *)hiddenBtn{
@@ -656,14 +692,14 @@
     if([curReach isReachable])
     {
         if(![curReach isReachableViaWiFi]){
-           [self showMessageWithAlert:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用功能"];
+            [self showMessageWithAlert:@"使用2G/3G 网络,会产生运营商流量费用，请选择WIFI环境使用功能"];
         }
-//        if(self.mapView.mapLayers.count > 0){
-//            if([[self.mapView.mapLayers objectAtIndex:0] isKindOfClass:[AGSLocalTiledLayer class]]){
-//                return;
-//            }
-//        }
-//        [self.mapView reset];
+        //        if(self.mapView.mapLayers.count > 0){
+        //            if([[self.mapView.mapLayers objectAtIndex:0] isKindOfClass:[AGSLocalTiledLayer class]]){
+        //                return;
+        //            }
+        //        }
+        //        [self.mapView reset];
         [self addTileLayer];
         
         // Do any additional setup after loading the view from its nib.
@@ -671,6 +707,11 @@
         [self.mapView addMapLayer:self.graphicsLayer withName:@"graphicsLayer"];
         self.sketchLayer = [AGSSketchGraphicsLayer graphicsLayer];
         if(self.sketchLayer){
+            
+            if([_mapView.mapLayerViews objectForKey:@"sketchLayer"])
+            {
+                [_mapView removeMapLayerWithName:@"sketchLayer"];
+            }
             [self.mapView addMapLayer:self.sketchLayer withName:@"sketchLayer"];
         }
         
@@ -770,15 +811,21 @@
     AGSGeometry *sketchGeometry = self.sketchLayer.geometry;
     if ([sketchGeometry isKindOfClass:[AGSMutablePoint class]] && sketchGeometry.isValid){
         errorPoint = (AGSPoint *)sketchGeometry;
-        AGSGoogleMapLayer *layer = (AGSGoogleMapLayer *)[self.mapView.mapLayers objectAtIndex:0];
-        for(AGSLOD *lod in layer.tileInfo.lods){
-            if(lod.resolution == self.mapView.resolution){
-                errorScale = lod.level;
+        for(AGSTiledLayer *tileLayer in self.mapView.mapLayers){
+            if([tileLayer isKindOfClass:[AGSGoogleMapLayer class]]){
+                AGSGoogleMapLayer *layer = (AGSGoogleMapLayer *)tileLayer;
+                for(AGSLOD *lod in layer.tileInfo.lods){
+                    if(lod.resolution == self.mapView.resolution){
+                        errorScale = lod.level;
+                        break;
+                    }
+                }
+                self.mapView.callout.customView = self.textView;
+                [self.mapView showCalloutAtPoint:errorPoint];
                 break;
             }
         }
-        self.mapView.callout.customView = self.textView;
-        [self.mapView showCalloutAtPoint:errorPoint];
+        
     }
 }
 
@@ -839,16 +886,30 @@
     }
     else
     {
-        return YES;   
-    }   
+        return YES;
+    }
 }
 
 - (void)sendErrorRecovery{
     if(_textView.text.length > 0 && errorScale > 0 && errorPoint.x != 0 && errorPoint.y != 0){
         [[dataHttpManager getInstance] letDoPostErrorWithMessage:_textView.text plottingScale:[NSString stringWithFormat:@"%d",errorScale] point:[NSString stringWithFormat:@"%f,%f",errorPoint.x,errorPoint.y]];
+    }else{
+        UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"获取纠错信息异常" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+        [view show];
+        self.sketchLayer.geometry = nil;
+        [self.sketchLayer removeAllGraphics];
+        [self.mapView.callout removeFromSuperview];
     }
 }
-#pragma mark 
+- (BOOL)hasSkechLayer:(NSString *)name{
+    for(AGSLayer *layer in self.mapView.mapLayers){
+        if([layer isKindOfClass:[AGSSketchGraphicsLayer class]] && [layer.name isEqualToString:name]){
+            return YES;
+        }
+    }
+    return NO;
+}
+#pragma mark
 - (void)didPostError:(NSString *)string{
     UIAlertView *alert;
     alert = [[UIAlertView alloc]
@@ -857,6 +918,13 @@
              delegate:nil cancelButtonTitle:nil
              otherButtonTitles:@"确定", nil];
     [alert show];
+    self.sketchLayer.geometry = nil;
+    [self.sketchLayer removeAllGraphics];
+    [self.mapView.callout removeFromSuperview];
+}
+- (void)didGetFailed{
+    UIAlertView *view = [[UIAlertView alloc] initWithTitle:@"天地图宁波" message:@"网络发生异常" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+    [view show];
     self.sketchLayer.geometry = nil;
     [self.sketchLayer removeAllGraphics];
     [self.mapView.callout removeFromSuperview];
