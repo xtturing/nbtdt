@@ -10,29 +10,29 @@
 	<string>nbtdt</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>EB7F36B2-B7BA-4FF2-90DA-F9F8A6A6FAEB</key>
+		<key>DE40571DA911A87D6237F543DDEA1E612E5D1B8E</key>
 		<string>https://github.com/xtturing/nbtdt.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>nbtdt.xcodeproj/project.xcworkspace</string>
+	<string>nbtdt.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>EB7F36B2-B7BA-4FF2-90DA-F9F8A6A6FAEB</key>
+		<key>DE40571DA911A87D6237F543DDEA1E612E5D1B8E</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/xtturing/nbtdt.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>EB7F36B2-B7BA-4FF2-90DA-F9F8A6A6FAEB</string>
+	<string>DE40571DA911A87D6237F543DDEA1E612E5D1B8E</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>EB7F36B2-B7BA-4FF2-90DA-F9F8A6A6FAEB</string>
+			<string>DE40571DA911A87D6237F543DDEA1E612E5D1B8E</string>
 			<key>IDESourceControlWCCName</key>
 			<string>nbtdt</string>
 		</dict>

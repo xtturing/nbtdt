@@ -331,8 +331,6 @@
             }else{
                 [self.mapView addSubview:self.toolView];
                 self.sketchLayer = [AGSSketchGraphicsLayer graphicsLayer];
-                self.sketchLayer.geometry = [[AGSMutablePolyline alloc] initWithSpatialReference:self.mapView.spatialReference];
-                
                 if([_mapView.mapLayerViews objectForKey:@"sketchLayer"])
                 {
                     [_mapView removeMapLayerWithName:@"sketchLayer"];
