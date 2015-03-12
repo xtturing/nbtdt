@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		413B641C1AB1ED0A0040918D /* NBMapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 413B641B1AB1ED0A0040918D /* NBMapViewController.xib */; };
+		413B641E1AB1ED2C0040918D /* NBLineServiceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 413B641D1AB1ED2C0040918D /* NBLineServiceViewController.xib */; };
 		4162EB3F19B361FA00A9E12F /* NBTpk.m in Sources */ = {isa = PBXBuildFile; fileRef = 4162EB3E19B361FA00A9E12F /* NBTpk.m */; };
 		41B76E7A19B37C0600C4F1DB /* DowningCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 41B76E7819B37C0600C4F1DB /* DowningCell.m */; };
 		41B76E7B19B37C0600C4F1DB /* DowningCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41B76E7919B37C0600C4F1DB /* DowningCell.xib */; };
@@ -45,8 +47,6 @@
 		41BBA1CF19A78B3300C0A328 /* DownloadStoreManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA07F19A78B3200C0A328 /* DownloadStoreManager.m */; };
 		41BBA1D019A78B3300C0A328 /* DwonloadModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA08019A78B3200C0A328 /* DwonloadModel.xcdatamodeld */; };
 		41BBA1D119A78B3300C0A328 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 41BBA08219A78B3200C0A328 /* InfoPlist.strings */; };
-		41BBA1D219A78B3300C0A328 /* NBLineServiceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41BBA08419A78B3200C0A328 /* NBLineServiceViewController.xib */; };
-		41BBA1D319A78B3300C0A328 /* NBMapViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41BBA08619A78B3200C0A328 /* NBMapViewController.xib */; };
 		41BBA1D419A78B3300C0A328 /* GoogleMapSchema.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA08919A78B3200C0A328 /* GoogleMapSchema.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		41BBA1D519A78B3300C0A328 /* GoogleMapTileOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 41BBA08B19A78B3200C0A328 /* GoogleMapTileOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		41BBA23A19A78B3300C0A328 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41BBA0F119A78B3200C0A328 /* Images.xcassets */; };
@@ -143,6 +143,8 @@
 		39C5F39C16F8A9920061B21A /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		39C5F39E16F8A9920061B21A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		39C5F3A016F8A9920061B21A /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		413B641B1AB1ED0A0040918D /* NBMapViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NBMapViewController.xib; sourceTree = "<group>"; };
+		413B641D1AB1ED2C0040918D /* NBLineServiceViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NBLineServiceViewController.xib; sourceTree = "<group>"; };
 		4162EB3D19B361FA00A9E12F /* NBTpk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBTpk.h; sourceTree = "<group>"; };
 		4162EB3E19B361FA00A9E12F /* NBTpk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBTpk.m; sourceTree = "<group>"; };
 		41B76E7719B37C0600C4F1DB /* DowningCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DowningCell.h; sourceTree = "<group>"; };
@@ -152,8 +154,6 @@
 		41B838DD19BF4E150089FB1B /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		41B838DF19BF4E390089FB1B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		41B838E119BF504B0089FB1B /* iflyMSC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = iflyMSC.framework; sourceTree = "<group>"; };
-		41BA71E419AB749200AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/NBLineServiceViewController.xib"; sourceTree = "<group>"; };
-		41BA71E519AB749200AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "zh-Hans"; path = "zh-Hans.lproj/NBMapViewController.xib"; sourceTree = "<group>"; };
 		41BA71E619AB749300AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		41BA71E719AB749300AB243A /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		41BBA03B19A78B3200C0A328 /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPClient.h; sourceTree = "<group>"; };
@@ -572,7 +572,7 @@
 		4148237D19AA315B00442FA7 /* LineService */ = {
 			isa = PBXGroup;
 			children = (
-				41BBA08419A78B3200C0A328 /* NBLineServiceViewController.xib */,
+				413B641D1AB1ED2C0040918D /* NBLineServiceViewController.xib */,
 				41BBA10919A78B3200C0A328 /* NBLineDetailViewController.h */,
 				41BBA10A19A78B3200C0A328 /* NBLineDetailViewController.m */,
 				41BBA10B19A78B3200C0A328 /* NBLineDetailViewController.xib */,
@@ -585,7 +585,7 @@
 		4148237E19AA317200442FA7 /* MapView */ = {
 			isa = PBXGroup;
 			children = (
-				41BBA08619A78B3200C0A328 /* NBMapViewController.xib */,
+				413B641B1AB1ED0A0040918D /* NBMapViewController.xib */,
 				41BBA10E19A78B3200C0A328 /* NBMapViewController.h */,
 				41BBA10F19A78B3200C0A328 /* NBMapViewController.m */,
 			);
@@ -865,13 +865,13 @@
 				41BBA24319A78B3300C0A328 /* NBDownLoadViewController.xib in Resources */,
 				41BBA24819A78B3300C0A328 /* NBLineDetailViewController.xib in Resources */,
 				41BBA24C19A78B3300C0A328 /* NBNearSearchViewController.xib in Resources */,
+				413B641E1AB1ED2C0040918D /* NBLineServiceViewController.xib in Resources */,
 				41BBA24119A78B3300C0A328 /* NBDownLoadManagerViewController.xib in Resources */,
-				41BBA1D219A78B3300C0A328 /* NBLineServiceViewController.xib in Resources */,
+				413B641C1AB1ED0A0040918D /* NBMapViewController.xib in Resources */,
 				41BBA1D119A78B3300C0A328 /* InfoPlist.strings in Resources */,
 				41BBA23A19A78B3300C0A328 /* Images.xcassets in Resources */,
 				41BBA26D19A78B3300C0A328 /* SVProgressHUD.bundle in Resources */,
 				41BBA25119A78B3300C0A328 /* NBSearchDetailViewController.xib in Resources */,
-				41BBA1D319A78B3300C0A328 /* NBMapViewController.xib in Resources */,
 				41BBA24519A78B3300C0A328 /* NBFavoritesViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -990,22 +990,6 @@
 				41BA71E619AB749300AB243A /* zh-Hans */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		41BBA08419A78B3200C0A328 /* NBLineServiceViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				41BA71E419AB749200AB243A /* zh-Hans */,
-			);
-			name = NBLineServiceViewController.xib;
-			sourceTree = "<group>";
-		};
-		41BBA08619A78B3200C0A328 /* NBMapViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				41BA71E519AB749200AB243A /* zh-Hans */,
-			);
-			name = NBMapViewController.xib;
 			sourceTree = "<group>";
 		};
 		41BBA2E319A794AE00C0A328 /* InfoPlist.strings */ = {
